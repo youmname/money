@@ -1,97 +1,186 @@
-<script setup>
-// ===============================
-// LessonCard：今日课程/课次卡片（可复用组件）
-// 用途：学生首页“今日课程”、后续排课列表、历史课程等都能复用
-// ===============================
-
-import { defineProps } from 'vue' // defineProps：定义组件参数
-
-// 定义组件参数
-const props = defineProps({
-  timeText: { type: String, required: true }, // 上课时间，例如“19:30 - 20:30”
-  title: { type: String, required: true }, // 课程标题，例如“初中英语 第3课”
-  statusText: { type: String, default: '即将开始' }, // 状态，例如“即将开始”
-  actionText: { type: String, default: '进入教室' }, // 按钮文字
-})
-</script>
-
+<!-- LessonCard：课次卡片通用组件
+  用途：学生首页“今日课程”卡片，以及后续排课列表等课次展示复用
+  Props：
+    - tagText: string（默认“今日课程”）左上角标签文案
+    - time: string（必填）大号时间，如 “09:30”
+    - title: string（必填）课程标题
+    - meta: string（必填）课程补充信息，如 “09:30–10:30 · 张老师”
+    - bgUrl: string（可选）背景图 URL，不传则用默认渐变底色
+    - primaryText: string（默认“进入教室”）主按钮文案
+  事件：
+    - primary：点击主按钮时触发，父组件用 @primary 监听
+-->
 <template>
-  <div class="card">
-    <!-- 顶部：标题与状态 -->
-    <div class="top">
-      <div class="label">今日课程</div>
-      <div class="status">{{ props.statusText }}</div>
+  <div class="lessonCard">
+    <!-- 背景图（可选） -->
+    <img v-if="bgUrl" class="lessonCard__bg" :src="bgUrl" alt="" />
+
+    <!-- 信息磨砂区 -->
+    <div class="lessonCard__infoGlass">
+      <!-- 左上角标签 -->
+      <StatusTag type="info">
+        <slot name="tag">{{ tagText }}</slot>
+      </StatusTag>
+
+      <!-- 大时间 -->
+      <div class="lessonCard__time">
+        <slot name="time">{{ time }}</slot>
+      </div>
+
+      <!-- 标题 -->
+      <div class="lessonCard__title">
+        <slot name="title">{{ title }}</slot>
+      </div>
+
+      <!-- 补充信息 -->
+      <div class="lessonCard__meta">
+        <slot name="meta">{{ meta }}</slot>
+      </div>
     </div>
 
-    <!-- 时间 -->
-    <div class="time">{{ props.timeText }}</div>
-
-    <!-- 课程名称 -->
-    <div class="title">{{ props.title }}</div>
-
-    <!-- 操作按钮：父组件用 @click 监听 -->
-    <button class="btn">{{ props.actionText }}</button>
+    <!-- 底部主按钮 -->
+    <div class="lessonCard__btnWrapper">
+      <BaseButton variant="primary" @click="emit('primary')">
+        <slot name="primary">{{ primaryText }}</slot>
+      </BaseButton>
+    </div>
   </div>
 </template>
 
+<script setup>
+// ==========================
+// LessonCard：课次卡片通用实现
+// ==========================
+
+import StatusTag from '@/components/base/StatusTag.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
+
+const props = defineProps({
+  tagText: {
+    type: String,
+    default: '今日课程'
+  },
+  time: {
+    type: String,
+    required: true
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  meta: {
+    type: String,
+    required: true
+  },
+  bgUrl: {
+    type: String,
+    default: ''
+  },
+  primaryText: {
+    type: String,
+    default: '进入教室'
+  }
+})
+
+const emit = defineEmits(['primary'])
+</script>
+
 <style scoped>
-/* 今日课程卡片：占首页视觉中心 */
-.card {
-  border-radius: 18px;
-  padding: 18px;
-  background: linear-gradient(135deg, rgba(45, 108, 223, 0.16), rgba(45, 108, 223, 0.06));
-  border: 1px solid rgba(45, 108, 223, 0.18);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-height: 220px;
+/* 引入设计令牌（CSS 变量） */
+@import '@/assets/base-tokens.css';
+
+/* 整体卡片容器：沿用原 TodayLessonCard 的体量和磨砂风格 */
+.lessonCard {
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  height: 360px;
+  box-shadow: 0 18px 40px rgba(30, 60, 120, 0.14);
+  background: linear-gradient(135deg, #e0edff, #f6fbff); /* 无背景图时的兜底底色 */
 }
 
-/* 顶部区域：左标签右状态 */
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* 背景图：铺满裁切 */
+.lessonCard__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.05);
 }
 
-/* 左侧小标签 */
-.label {
+/* 中间磨砂信息块 */
+.lessonCard__infoGlass {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 86px; /* 给按钮留位置（按钮高度 + 间距） */
+  padding: 14px 14px 12px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* StatusTag 在课程卡片中的样式覆盖：保持紧凑 */
+.lessonCard__infoGlass :deep(.statusTag) {
+  display: inline-block;
+}
+
+/* 大时间：视觉主元素 */
+.lessonCard__time {
+  margin-top: 8px;
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 900;
+  color: rgba(15, 25, 45, 0.92);
+}
+
+/* 标题 */
+.lessonCard__title {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 900;
+  color: rgba(15, 25, 45, 0.9);
+}
+
+/* 补充信息 */
+.lessonCard__meta {
+  margin-top: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: rgba(45, 108, 223, 1);
+  color: rgba(15, 25, 45, 0.68);
 }
 
-/* 右侧状态 */
-.status {
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255, 153, 0, 0.14);
-  color: rgba(180, 90, 0, 1);
+/* 底部按钮容器 */
+.lessonCard__btnWrapper {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
 }
 
-/* 时间（突出） */
-.time {
-  font-size: 20px;
-  font-weight: 800;
-}
-
-/* 课程标题 */
-.title {
+/* 按钮占满宽度 + 字重 */
+.lessonCard__btnWrapper :deep(.baseButton) {
+  width: 100%;
+  height: 54px;
   font-size: 16px;
-  opacity: 0.9;
+  font-weight: 900;
 }
 
-/* 进入教室按钮 */
-.btn {
-  margin-top: auto; /* 把按钮推到底部 */
-  height: 44px;
-  border: none;
-  border-radius: 12px;
-  background: rgba(45, 108, 223, 1);
-  color: white;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
+/* 手机端：高度略缩小一点 */
+@media (max-width: 600px) {
+  .lessonCard {
+    height: 320px;
+  }
+
+  .lessonCard__time {
+    font-size: 46px;
+  }
+
+  .lessonCard__title {
+    font-size: 16px;
+  }
 }
 </style>

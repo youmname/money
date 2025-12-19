@@ -1,0 +1,66 @@
+/* =========================
+   Base 组件库设计令牌（CSS 变量）
+   用途：统一管理基础组件的颜色、圆角、阴影等样式
+   ========================= */
+
+:root {
+  /* ===== 颜色 ===== */
+  /* 主色：蓝色系 */
+  --base-color-primary: #2f6df6; /* 主色：蓝色 */
+  --base-color-primary-hover: #1f56d6; /* 主色 hover */
+  --base-color-primary-light: rgba(47, 109, 246, 0.12); /* 主色浅色背景 */
+
+  /* 次色：灰色系 */
+  --base-color-secondary: rgba(20, 30, 55, 0.85); /* 次色：深灰 */
+  --base-color-secondary-hover: rgba(20, 30, 55, 0.95); /* 次色 hover */
+
+  /* 状态色 */
+  --base-color-success: #10b981; /* 成功：绿色 */
+  --base-color-warn: #f59e0b; /* 警告：橙色 */
+  --base-color-danger: #ef4444; /* 危险：红色 */
+  --base-color-info: #3b82f6; /* 信息：蓝色 */
+
+  /* 文本色 */
+  --base-color-text: rgba(20, 30, 55, 0.9); /* 主文本色 */
+  --base-color-text-secondary: rgba(20, 30, 55, 0.65); /* 次文本色 */
+  --base-color-text-disabled: rgba(20, 30, 55, 0.4); /* 禁用文本色 */
+
+  /* 背景色 */
+  --base-color-bg: rgba(255, 255, 255, 0.9); /* 背景色：半透明白 */
+  --base-color-bg-hover: rgba(255, 255, 255, 0.95); /* 背景 hover */
+  --base-color-bg-disabled: rgba(0, 0, 0, 0.04); /* 禁用背景 */
+
+  /* 边框色 */
+  --base-color-border: rgba(0, 0, 0, 0.1); /* 边框色 */
+  --base-color-border-hover: rgba(0, 0, 0, 0.15); /* 边框 hover */
+  --base-color-border-error: rgba(239, 68, 68, 0.5); /* 错误边框 */
+
+  /* ===== 圆角 ===== */
+  --base-radius-sm: 8px; /* 小圆角 */
+  --base-radius-md: 12px; /* 中圆角 */
+  --base-radius-lg: 14px; /* 大圆角 */
+  --base-radius-xl: 18px; /* 超大圆角 */
+
+  /* ===== 阴影 ===== */
+  --base-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06); /* 小阴影 */
+  --base-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08); /* 中阴影 */
+  --base-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1); /* 大阴影 */
+
+  /* ===== 间距 ===== */
+  --base-spacing-xs: 4px; /* 极小间距 */
+  --base-spacing-sm: 8px; /* 小间距 */
+  --base-spacing-md: 12px; /* 中间距 */
+  --base-spacing-lg: 16px; /* 大间距 */
+  --base-spacing-xl: 24px; /* 超大间距 */
+
+  /* ===== 字体 ===== */
+  --base-font-size-sm: 13px; /* 小字号 */
+  --base-font-size-md: 14px; /* 中字号 */
+  --base-font-size-lg: 16px; /* 大字号 */
+
+  /* ===== 磨砂效果 ===== */
+  --base-blur-sm: blur(8px); /* 小磨砂 */
+  --base-blur-md: blur(12px); /* 中磨砂 */
+  --base-blur-lg: blur(18px); /* 大磨砂 */
+}
+

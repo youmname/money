@@ -4,6 +4,7 @@
 
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import AppShell from '@/components/common/AppShell.vue' // 引入 AppShell 布局组件
 
 const router = useRouter() // 路由对象：用于跳转页面
 
@@ -16,52 +17,123 @@ const password = ref('')
 // 错误提示文本
 const errorText = ref('')
 
+// 当前选择的登录角色（最小权限模型，只区分老师/学生/家长三种）
+// 说明：这里用前端简单选择来模拟“以某个角色登录”
+const selectedRole = ref('student') // 默认以学生身份登录
+
+// 角色对应首页路径映射表（与路由守卫保持一致）
+const ROLE_HOME_MAP = {
+  teacher: '/teacher/home',
+  student: '/student/home',
+  parent: '/parent/home',
+}
+
 // 点击“登录”按钮时触发
 const handleLogin = () => {
   errorText.value = '' // 先清空提示
 
-  // 这里先做最简单校验：不允许为空
+  // 1）最简单的表单校验：手机号和密码不能为空
   if (!phone.value || !password.value) {
     errorText.value = '请输入手机号和密码'
     return
   }
 
-  // ✅ MVP：先不接后端，先用“手机号末位”模拟角色跳转
-  // 你后面接真实接口后，把这段替换为 API 请求即可
-  const lastDigit = Number(phone.value.slice(-1))
+  // 2）根据前端选择的角色生成一个“最小登录态”
+  const role = selectedRole.value
 
-  // 偶数 → 老师；奇数 → 学生（只是临时规则）
-  if (!Number.isNaN(lastDigit) && lastDigit % 2 === 0) {
-    router.push('/teacher/home')
+  // 使用一个简单的 mock 字符串充当 token（后续接入真实登录接口时可替换）
+  const mockToken = `mock-token-${Date.now()}`
+
+  // 把最小登录态写入 localStorage
+  // - auth_token：仅用来判断“是否已登录”
+  // - auth_role：标记当前登录用户的角色
+  localStorage.setItem('auth_token', mockToken)
+  localStorage.setItem('auth_role', role)
+
+  // 3）登录成功后跳转：优先跳转到对应角色首页
+  const homePath = ROLE_HOME_MAP[role] || '/login'
+
+  // 如果登录页带了 redirect 参数（比如未登录被拦截后），可以按需优先跳回
+  const redirect = router.currentRoute.value.query.redirect
+
+  // 为了简单起见：redirect 存在且仍是同一角色前缀时再跳回，否则进入角色首页
+  if (typeof redirect === 'string' && redirect.startsWith(`/${role}`)) {
+    router.push(redirect)
   } else {
-    router.push('/student/home')
+    router.push(homePath)
   }
 }
 </script>
 
 <template>
-  <div class="page">
-    <!-- 页面标题 -->
-    <h1 class="title">登录</h1>
+  <!-- 登录页：不需要显示返回和退出按钮 -->
+  <AppShell title="登录" :show-back="false" :show-logout="false">
+    <div class="page">
+      <!-- 页面标题 -->
+      <h1 class="title">登录</h1>
 
-    <!-- 表单区域 -->
-    <div class="form">
-      <label class="label">手机号</label>
-      <input v-model="phone" class="input" placeholder="请输入手机号" />
+      <!-- 表单区域：使用 form 包裹，便于浏览器识别登录表单 -->
+      <form class="form" @submit.prevent="handleLogin">
+        <label class="label">手机号</label>
+        <input
+          v-model="phone"
+          class="input"
+          placeholder="请输入手机号"
+          type="tel"
+          autocomplete="tel"
+        />
 
-      <label class="label">密码</label>
-      <input v-model="password" class="input" type="password" placeholder="请输入密码" />
+        <label class="label">密码</label>
+        <input
+          v-model="password"
+          class="input"
+          type="password"
+          placeholder="请输入密码"
+          autocomplete="current-password"
+        />
 
-      <!-- 错误提示 -->
-      <p v-if="errorText" class="error">{{ errorText }}</p>
+        <!-- 角色选择：用于决定以哪种身份登录（只影响前端的 auth_role / 跳转） -->
+        <label class="label">以哪个角色登录？（仅前端 mock）</label>
+        <div class="roleRow">
+          <button
+            type="button"
+            class="roleBtn"
+            :class="{ active: selectedRole === 'student' }"
+            @click="selectedRole = 'student'"
+          >
+            学生
+          </button>
+          <button
+            type="button"
+            class="roleBtn"
+            :class="{ active: selectedRole === 'teacher' }"
+            @click="selectedRole = 'teacher'"
+          >
+            老师
+          </button>
+          <button
+            type="button"
+            class="roleBtn"
+            :class="{ active: selectedRole === 'parent' }"
+            @click="selectedRole = 'parent'"
+          >
+            家长
+          </button>
+        </div>
 
-      <!-- 登录按钮 -->
-      <button class="btn" @click="handleLogin">登录</button>
+        <!-- 错误提示 -->
+        <p v-if="errorText" class="error">{{ errorText }}</p>
 
-      <!-- 忘记密码 -->
-      <button class="link" @click="router.push('/forgot-password')">忘记密码？</button>
+        <!-- 登录按钮：使用 submit，让浏览器识别为表单提交 -->
+        <button class="btn" type="submit">登录</button>
+
+        <!-- 忘记密码 -->
+        <button class="link" type="button" @click="router.push('/forgot-password')">
+          忘记密码？
+        </button>
+      </form>
     </div>
-  </div>
+  </AppShell>
 </template>
 
 <style scoped>
@@ -123,6 +195,32 @@ const handleLogin = () => {
   color: white;
   font-size: 15px;
   cursor: pointer;
+}
+
+/* 角色选择行：按钮横向排布，自动换行以避免小屏爆版 */
+.roleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 8px;
+}
+
+/* 角色按钮：保持触控高度，不挤占过多宽度 */
+.roleBtn {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.18);
+  background: #f5f7ff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* 当前选中角色的高亮态 */
+.roleBtn.active {
+  background: #2d6cdf;
+  color: #fff;
+  border-color: #2d6cdf;
 }
 
 /* 次按钮（链接样式） */

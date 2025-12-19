@@ -11,6 +11,9 @@ import router from "./router/index.js"; // Vue Router 路由配置
 // 导入全局样式（你 assets/main.css 里可以放全局通用样式）
 import "./assets/main.css"; // 全局 CSS
 
+// 导入 Base 组件库设计令牌（CSS 变量）
+import "./assets/base-tokens.css"; // Base 组件库设计令牌
+
 // 创建 Vue 应用实例
 const app = createApp(App); // 把 App 作为根组件
 

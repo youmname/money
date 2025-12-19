@@ -2,7 +2,7 @@
 // ===============================
 // 忘记密码页（P0 占位版）
 // 目标：
-// 1) 有“发送验证码”按钮（模拟短信发送）
+// 1) 有"发送验证码"按钮（模拟短信发送）
 // 2) 有倒计时，避免重复点击
 // 3) 有提交按钮（模拟重置密码）
 // 后续接真实短信：只需要把 sendSmsCode() 换成调用后端接口即可
@@ -10,6 +10,7 @@
 
 import { ref, onBeforeUnmount } from 'vue' // ref：响应式变量；onBeforeUnmount：页面销毁时清理定时器
 import { useRouter } from 'vue-router' // 路由：用于返回登录页
+import AppShell from '@/components/common/AppShell.vue' // 引入 AppShell 布局组件
 
 // 路由对象：用于跳转
 const router = useRouter()
@@ -130,11 +131,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="page">
-    <!-- 标题 -->
-    <h1 class="title">短信找回 / 重置密码</h1>
+  <AppShell title="忘记密码">
+    <div class="page">
+      <!-- 标题 -->
+      <h1 class="title">短信找回 / 重置密码</h1>
 
-    <div class="form">
+      <div class="form">
       <!-- 手机号 -->
       <label class="label">手机号</label>
       <input v-model="phone" class="input" placeholder="请输入手机号" />
@@ -174,7 +176,8 @@ onBeforeUnmount(() => {
       <!-- 返回登录 -->
       <button class="link" @click="router.push('/login')">返回登录</button>
     </div>
-  </div>
+    </div>
+  </AppShell>
 </template>
 
 <style scoped>

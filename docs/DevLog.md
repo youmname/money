@@ -1,0 +1,1365 @@
+# DevLog - Day2
+
+## 1) 今天完成了什么（验收点逐条对照）
+
+- [x] 顶部栏（slot）
+  - AppShell 组件已支持 `header` slot，允许页面自定义顶部栏
+  - 默认顶部栏显示页面标题 + 退出按钮
+  - StudentHomeView 使用自定义 header slot 显示 TopBar 组件（搜索+用户信息）
+
+- [x] 内容区（slot）
+  - AppShell 组件已支持默认 slot，所有页面内容放在这里
+  - 所有页面都已将内容包裹在 AppShell 的默认 slot 中
+
+- [x] 退出按钮（slot 或默认按钮）
+  - AppShell 默认顶部栏包含退出按钮，点击跳转到 `/login`
+  - 使用自定义 header slot 的页面（如 StudentHomeView）可以自行处理退出逻辑
+
+- [x] 所有页面已套 AppShell
+  - LoginView：已使用 AppShell（title="登录"）
+  - TeacherHomeView：已使用 AppShell（title="老师端首页"）
+  - StudentHomeView：已使用 AppShell（自定义 header slot）
+  - ParentHomeView：已使用 AppShell（title="家长端首页"）
+  - NotFoundView：已使用 AppShell（title="404"）
+  - ForgotPasswordView：已使用 AppShell（title="忘记密码"）
+
+## 2) 新增/修改的文件清单
+
+- **新增**：无（AppShell 组件在 Day1 已存在）
+- **修改**：
+  - `src/views/student/StudentHomeView.vue`：用 AppShell 包裹页面内容，使用 header slot 自定义顶部栏
+  - `src/views/ForgotPasswordView.vue`：用 AppShell 包裹页面内容，使用默认顶部栏
+
+## 3) 新增的关键"变量/函数/事件"说明（必须写中文解释）
+
+- **AppShell 组件 Props**：
+  - `title`（String，可选）：页面标题，当使用默认顶部栏时显示在左侧
+  - 作用：统一管理页面标题显示
+  - 位置：`src/components/common/AppShell.vue`
+  - 传递方式：页面组件通过 `<AppShell title="页面标题">` 传递
+
+- **AppShell 组件 Slots**：
+  - `header`（具名 slot，可选）：自定义顶部栏内容
+  - 作用：允许页面完全自定义顶部栏（如 StudentHomeView 的搜索+用户信息条）
+  - 位置：`src/components/common/AppShell.vue`
+  - 使用方式：`<template #header>自定义顶部栏内容</template>`
+  - 默认行为：如果不提供 header slot，则显示默认顶部栏（标题+退出按钮）
+
+- **AppShell 组件默认 Slot**：
+  - 默认 slot：页面主要内容区域
+  - 作用：所有页面内容都放在这里，由 AppShell 统一管理布局
+  - 位置：`src/components/common/AppShell.vue`
+  - 使用方式：`<AppShell>页面内容</AppShell>`
+
+- **handleLogout 函数**：
+  - 作用：处理退出按钮点击事件，跳转到登录页
+  - 触发时机：用户点击 AppShell 默认顶部栏的"退出"按钮
+  - 影响页面：跳转到 `/login` 路由
+  - 位置：`src/components/common/AppShell.vue`
+
+## 4) 我该怎么验证（一步一步）
+
+### 步骤 1：访问所有页面，确认都使用了 AppShell
+
+1. **访问登录页**：`http://localhost:5173/login`
+   - 应看到：顶部有"登录"标题 + "退出"按钮
+   - 内容区：登录表单居中显示
+
+2. **访问老师端首页**：`http://localhost:5173/teacher/home`
+   - 应看到：顶部有"老师端首页"标题 + "退出"按钮
+   - 内容区：显示"老师端首页（TeacherHome）"文字
+
+3. **访问学生端首页**：`http://localhost:5173/student/home`
+   - 应看到：顶部有搜索栏 + 用户信息条（自定义 header slot）
+   - 内容区：今日课程卡片、排行榜、功能按钮、奖励卡片
+
+4. **访问家长端首页**：`http://localhost:5173/parent/home`
+   - 应看到：顶部有"家长端首页"标题 + "退出"按钮
+   - 内容区：显示"家长端首页（ParentHome）"文字
+
+5. **访问 404 页**：`http://localhost:5173/不存在的路径`
+   - 应看到：顶部有"404"标题 + "退出"按钮
+   - 内容区：404 提示卡片
+
+6. **访问忘记密码页**：`http://localhost:5173/forgot-password`
+   - 应看到：顶部有"忘记密码"标题 + "退出"按钮
+   - 内容区：忘记密码表单
+
+### 步骤 2：验证统一布局效果（修改 AppShell 一处，所有页面一起变化）
+
+1. **打开文件**：`src/components/common/AppShell.vue`
+
+2. **修改容器宽度**（第 52 行）：
+   ```css
+   .appShell {
+     min-height: 100vh;
+     display: flex;
+     flex-direction: column;
+     max-width: 1400px; /* 新增：限制最大宽度 */
+     margin: 0 auto; /* 新增：居中 */
+   }
+   ```
+   - 保存后刷新所有页面，应看到所有页面内容都变窄并居中
+
+3. **修改背景色**（第 69 行）：
+   ```css
+   .headerDefault {
+     /* ... */
+     background: rgba(240, 248, 255, 0.95); /* 改为浅蓝色背景 */
+   }
+   ```
+   - 保存后刷新所有页面，应看到所有页面的顶部栏背景都变成浅蓝色
+
+4. **修改内容区内边距**（第 101 行）：
+   ```css
+   .content {
+     flex: 1;
+     width: 100%;
+     overflow-y: auto;
+     padding: 32px; /* 新增：内容区内边距 */
+   }
+   ```
+   - 保存后刷新所有页面，应看到所有页面内容区都有 32px 内边距
+
+5. **恢复原样**：撤销上述修改，确保不影响后续开发
+
+### 步骤 3：验证退出按钮功能
+
+1. **点击任意页面的"退出"按钮**
+   - 应跳转到 `/login` 页面
+
+2. **在 StudentHomeView 中点击用户信息条**
+   - 应跳转到 `/student/profile`（如果路由存在）或显示 404
+
+---
+
+## Day1 完成情况回顾
+
+- [x] 路由与空页面骨架：已完成
+  - LoginView、TeacherHomeView、StudentHomeView、ParentHomeView、NotFoundView 已创建
+  - 所有路由已在 `src/router/index.js` 中配置
+
+- [x] 404 返回上一页：已完成
+  - NotFoundView 已实现返回上一页功能
+  - 使用 sessionStorage 记录来源页和最后一次正常页面
+
+- [x] 所有页面可访问：已完成
+  - `/login`、`/teacher/home`、`/student/home`、`/parent/home` 均可正常访问
+
+---
+
+# DevLog - Day3
+
+## 1) 今天完成了什么（验收点逐条对照）
+
+- [x] BaseButton（按钮组件）
+  - 支持 3 种样式：primary（主按钮）、secondary（次按钮）、ghost（幽灵按钮）
+  - 支持 loading 状态（显示 spinner 动画）
+  - 支持 disabled 状态
+  - 支持 icon slot 或 icon prop（左侧图标）
+  - PC 优先，自适应手机（手机端按钮高度 44px）
+
+- [x] BaseInput（输入框组件）
+  - 支持 v-model 双向绑定
+  - 支持 prefixIcon（前缀图标，左侧图标）
+  - 支持 clearable（清除按钮）
+  - 支持 error（错误提示文案）
+  - 支持 disabled 状态
+  - PC 优先，自适应手机（手机端输入框高度 48px）
+
+- [x] BaseModal（弹窗组件）
+  - 支持 v-model:open 控制显示/隐藏
+  - 支持 title prop 或 header slot（自定义头部）
+  - 支持默认 slot（弹窗内容）
+  - 支持 footer slot（自定义底部）或默认确认/取消按钮
+  - 支持 closeOnOverlay（点击遮罩关闭）
+  - 包含过渡动画（淡入淡出 + 缩放）
+  - PC 优先，自适应手机（手机端占满宽度，按钮垂直排列）
+
+- [x] StatusTag（状态标签组件）
+  - 支持 4 种类型：info（信息）、success（成功）、warn（警告）、danger（危险）
+  - 每种类型有对应的背景色和文字色
+  - 支持默认 slot（标签文字）
+
+- [x] EmptyState（空态组件）
+  - 支持 icon prop 或 icon slot（图标）
+  - 支持 title prop 或 title slot（标题）
+  - 支持 description prop 或 description slot（描述）
+  - 支持 action slot（操作按钮区域）
+  - PC 优先，自适应手机（手机端更小字号和内边距）
+
+- [x] Loading（加载组件）
+  - 显示 spinner 旋转动画
+  - 支持 text prop 或默认 slot（加载文案）
+  - PC 优先，自适应手机（手机端更小 spinner 尺寸）
+
+- [x] Demo 展示
+  - 在 TeacherHomeView 中添加了完整的 Base 组件库 demo
+  - 所有组件都有使用示例
+  - 标注了"这是 demo，后面会删/会改"
+
+## 2) 新增/修改的文件清单
+
+- **新增**：
+  - `src/assets/base-tokens.css`：Base 组件库设计令牌（CSS 变量），统一管理颜色、圆角、阴影等
+  - `src/components/base/BaseButton.vue`：基础按钮组件
+  - `src/components/base/BaseInput.vue`：基础输入框组件
+  - `src/components/base/BaseModal.vue`：基础弹窗组件
+  - `src/components/base/StatusTag.vue`：状态标签组件
+  - `src/components/base/EmptyState.vue`：空态组件
+  - `src/components/base/Loading.vue`：加载组件
+
+- **修改**：
+  - `src/views/teacher/TeacherHomeView.vue`：添加 Base 组件库 demo 展示区域
+
+## 3) 新增的关键"变量/函数/事件"说明（必须写中文解释）
+
+### BaseButton 组件
+- **Props**：
+  - `variant`（String，默认 'primary'）：按钮样式类型（primary/secondary/ghost）
+  - `loading`（Boolean，默认 false）：是否显示加载状态（显示 spinner）
+  - `disabled`（Boolean，默认 false）：是否禁用
+  - `icon`（String，默认 ''）：图标文字（可选，也可以用 icon slot）
+- **Events**：
+  - `click`：按钮点击事件（loading 或 disabled 时不触发）
+- **Slots**：
+  - `default`：按钮文字内容
+  - `icon`：自定义图标（会覆盖 icon prop）
+
+### BaseInput 组件
+- **Props**：
+  - `modelValue`（String，默认 ''）：输入框的值（v-model 绑定）
+  - `type`（String，默认 'text'）：输入框类型（text/password/email 等）
+  - `placeholder`（String，默认 ''）：占位符文字
+  - `prefixIcon`（String，默认 ''）：前缀图标（左侧图标）
+  - `clearable`（Boolean，默认 false）：是否显示清除按钮
+  - `error`（String，默认 ''）：错误提示文案（如果有就显示错误状态）
+  - `disabled`（Boolean，默认 false）：是否禁用
+- **Events**：
+  - `update:modelValue`：值更新事件（v-model）
+  - `focus`：焦点获得事件
+  - `blur`：焦点失去事件
+  - `clear`：清除按钮点击事件
+- **Slots**：
+  - `prefixIcon`：自定义前缀图标（会覆盖 prefixIcon prop）
+
+### BaseModal 组件
+- **Props**：
+  - `modelValue`（Boolean，默认 false）：弹窗是否打开（v-model:open 绑定）
+  - `title`（String，默认 ''）：弹窗标题
+  - `showFooter`（Boolean，默认 true）：是否显示底部按钮栏
+  - `closeOnOverlay`（Boolean，默认 true）：点击遮罩是否关闭
+- **Events**：
+  - `update:modelValue`：打开状态更新事件（v-model:open）
+  - `confirm`：确认按钮点击事件
+  - `cancel`：取消按钮点击事件
+  - `close`：弹窗关闭事件
+- **Slots**：
+  - `default`：弹窗内容区域
+  - `header`：自定义头部（会覆盖 title prop）
+  - `footer`：自定义底部（会覆盖默认确认/取消按钮）
+
+### StatusTag 组件
+- **Props**：
+  - `type`（String，默认 'info'）：标签类型（info/success/warn/danger）
+- **Slots**：
+  - `default`：标签文字内容
+
+### EmptyState 组件
+- **Props**：
+  - `icon`（String，默认 ''）：图标文字（可选，也可以用 icon slot）
+  - `title`（String，默认 ''）：标题文字（可选，也可以用 title slot）
+  - `description`（String，默认 ''）：描述文字（可选，也可以用 description slot）
+- **Slots**：
+  - `icon`：自定义图标（会覆盖 icon prop）
+  - `title`：自定义标题（会覆盖 title prop）
+  - `description`：自定义描述（会覆盖 description prop）
+  - `action`：操作按钮区域
+
+### Loading 组件
+- **Props**：
+  - `text`（String，默认 ''）：加载文案（可选，也可以用默认 slot）
+- **Slots**：
+  - `default`：加载文案（会覆盖 text prop）
+
+### base-tokens.css（CSS 变量）
+- **颜色变量**：主色、次色、状态色、文本色、背景色、边框色
+- **圆角变量**：sm（8px）、md（12px）、lg（14px）、xl（18px）
+- **阴影变量**：sm、md、lg
+- **间距变量**：xs（4px）、sm（8px）、md（12px）、lg（16px）、xl（24px）
+- **字体变量**：sm（13px）、md（14px）、lg（16px）
+- **磨砂变量**：sm、md、lg
+
+## 4) 我该怎么验证（一步一步）
+
+### 步骤 1：访问 Demo 页面
+
+1. **访问老师端首页**：`http://localhost:5173/teacher/home`
+   - 应看到：页面下方有一个"Base 组件库 Demo"区域
+   - 包含 6 个 demo 区块：BaseButton、BaseInput、StatusTag、BaseModal、EmptyState、Loading
+
+### 步骤 2：测试 BaseButton（按钮）
+
+1. **查看按钮样式**：
+   - 主按钮：蓝色背景，白色文字
+   - 次按钮：白色背景，深色文字，有边框
+   - 幽灵按钮：透明背景，深色文字
+
+2. **测试加载状态**：
+   - 点击"主按钮（点击加载）"
+   - 应看到：按钮显示 spinner 动画，按钮文字消失，3 秒后恢复
+
+3. **测试禁用状态**：
+   - 查看"禁用按钮"
+   - 应看到：按钮半透明，不可点击
+
+### 步骤 3：测试 BaseInput（输入框）
+
+1. **测试普通输入框**：
+   - 在第一个输入框中输入文字
+   - 应看到：文字正常显示
+
+2. **测试带前缀图标的输入框**：
+   - 在第二个输入框中输入文字
+   - 应看到：左侧有搜索图标，右侧有清除按钮（输入后显示）
+   - 点击清除按钮，应清空输入
+
+3. **测试错误状态**：
+   - 查看第三个输入框
+   - 应看到：红色边框，下方显示红色错误提示"请输入有效内容"
+
+4. **测试禁用状态**：
+   - 查看第四个输入框
+   - 应看到：半透明，不可输入
+
+### 步骤 4：测试 StatusTag（状态标签）
+
+1. **查看 4 种状态标签**：
+   - 信息：蓝色背景，蓝色文字
+   - 成功：绿色背景，绿色文字
+   - 警告：橙色背景，橙色文字
+   - 危险：红色背景，红色文字
+
+### 步骤 5：测试 BaseModal（弹窗）
+
+1. **打开弹窗**：
+   - 点击"打开弹窗"按钮
+   - 应看到：弹窗淡入并缩放出现，有遮罩层
+
+2. **测试关闭方式**：
+   - 点击右上角关闭按钮：弹窗关闭
+   - 点击遮罩层：弹窗关闭
+   - 点击"取消"按钮：弹窗关闭
+   - 点击"确认"按钮：弹出 alert，然后弹窗关闭
+
+### 步骤 6：测试 EmptyState（空态）
+
+1. **查看空态组件**：
+   - 应看到：大图标（📭）、标题"暂无数据"、描述文字、底部"刷新"按钮
+
+### 步骤 7：测试 Loading（加载）
+
+1. **查看加载组件**：
+   - 应看到：旋转的 spinner 动画、下方"加载中..."文字
+
+### 步骤 8：测试响应式（手机端）
+
+1. **调整浏览器窗口宽度到 600px 以下**：
+   - 按钮：高度变为 44px
+   - 输入框：高度变为 48px
+   - 弹窗：占满宽度，底部按钮垂直排列
+   - 其他组件：内边距和字号相应缩小
+
+### 步骤 9：验证设计令牌（CSS 变量）
+
+1. **打开文件**：`src/assets/base-tokens.css`
+2. **修改主色**（第 7 行）：
+   ```css
+   --base-color-primary: #10b981; /* 改为绿色 */
+   ```
+   - 保存后刷新页面，应看到所有使用主色的组件（按钮、输入框 focus、loading）都变成绿色
+
+3. **恢复原样**：撤销修改，确保不影响后续开发
+
+---
+
+# DevLog - Day4
+
+## 1) 今天完成了什么（验收点逐条对照）
+
+- [x] 顶部搜索框替换为 BaseInput
+  - TopBar 组件中的原生 input 已替换为 BaseInput 组件
+  - 支持 prefixIcon（🔍 图标）、clearable（清除按钮）
+  - 保持原有样式和布局（通过 CSS 覆盖实现）
+
+- [x] 顶部"搜索"按钮替换为 BaseButton
+  - TopBar 组件中的原生 button 已替换为 BaseButton 组件（variant="primary"）
+  - 保持原有样式和布局
+
+- [x] 今日课程"进入教室"按钮替换为 BaseButton
+  - TodayLessonCard 组件中的原生 button 已替换为 BaseButton 组件（variant="primary"）
+  - 保持原有样式和布局（通过 CSS 覆盖实现）
+
+- [x] 今日课程"今日课程"标签替换为 StatusTag
+  - TodayLessonCard 组件中的原生标签已替换为 StatusTag 组件（type="info"）
+  - 保持原有样式和布局
+
+- [x] 排行榜"查看全部"按钮替换为 BaseButton
+  - RankCard 组件中的原生 button 已替换为 BaseButton 组件（variant="ghost"）
+  - 保持原有样式和布局（通过 CSS 覆盖实现）
+
+- [x] 数据加载时显示 Loading（可选增强）
+  - StudentHomeView 添加了 isLoading 状态
+  - 数据加载时显示 Loading 组件（占满整行）
+
+- [x] 数据为空时显示 EmptyState（可选增强）
+  - 今日课程为空时显示 EmptyState（图标：📚）
+  - 排行榜为空时显示 EmptyState（图标：🏆）
+  - 奖励为空时显示 EmptyState（图标：🎁）
+  - 保持原有卡片高度和样式
+
+## 2) 新增/修改的文件清单
+
+- **修改**：
+  - `src/components/common/TopBar.vue`：替换搜索框为 BaseInput，搜索按钮为 BaseButton
+  - `src/components/student/TodayLessonCard.vue`：替换"进入教室"按钮为 BaseButton，"今日课程"标签为 StatusTag
+  - `src/components/student/RankCard.vue`：替换"查看全部"按钮为 BaseButton
+  - `src/views/student/StudentHomeView.vue`：添加 Loading 和 EmptyState 支持
+
+## 3) 新增的关键"变量/函数/事件"说明（必须写中文解释）
+
+### TopBar 组件
+- **新增变量**：
+  - `searchText`（computed）：搜索框输入内容的双向绑定（getter 从 props 读取，setter 发送 update:searchText 事件）
+  - 作用：实现 BaseInput 的 v-model 双向绑定
+  - 位置：`src/components/common/TopBar.vue`
+  - 传递方式：通过 computed 的 getter/setter 实现双向绑定
+
+### StudentHomeView 组件
+- **新增变量**：
+  - `isLoading`（ref，Boolean）：是否正在加载数据
+  - 作用：控制 Loading 组件的显示/隐藏
+  - 位置：`src/views/student/StudentHomeView.vue`
+  - 初始值：`true`（页面挂载时开始加载）
+  - 更新时机：数据加载完成后设置为 `false`
+
+- **新增计算属性**：
+  - `isTodayLessonEmpty`（computed，Boolean）：今日课程是否为空
+  - 作用：判断是否显示 EmptyState（当没有 lessonId 或时间为占位符时）
+  - 位置：`src/views/student/StudentHomeView.vue`
+  - 判断逻辑：`!todayLesson.lessonId || todayLesson.time === '--:--'`
+
+  - `isRankListEmpty`（computed，Boolean）：排行榜是否为空
+  - 作用：判断是否显示 EmptyState（当排行榜数组为空时）
+  - 位置：`src/views/student/StudentHomeView.vue`
+  - 判断逻辑：`rankThree.value.length === 0`
+
+  - `isRewardListEmpty`（computed，Boolean）：奖励是否为空
+  - 作用：判断是否显示 EmptyState（当奖励数组为空时）
+  - 位置：`src/views/student/StudentHomeView.vue`
+  - 判断逻辑：`rewardItems.value.length === 0`
+
+- **修改函数**：
+  - `onMounted`：添加了 `isLoading.value = true` 和 `isLoading.value = false` 的逻辑
+  - 作用：在数据加载开始和结束时更新加载状态
+  - 位置：`src/views/student/StudentHomeView.vue`
+
+## 4) 我该怎么验证（一步一步）
+
+### 步骤 1：验证基础控件替换
+
+1. **访问学生端首页**：`http://localhost:5173/student/home`
+   - 应看到：页面正常显示，布局与之前完全一致
+
+2. **测试顶部搜索框**：
+   - 应看到：搜索框左侧有 🔍 图标
+   - 输入文字后，右侧应显示清除按钮
+   - 点击清除按钮，应清空输入
+   - 搜索框样式应与之前一致（半透明背景、磨砂效果）
+
+3. **测试顶部搜索按钮**：
+   - 应看到：搜索按钮为蓝色主按钮样式
+   - 点击搜索按钮，应触发搜索（跳转到搜索页或显示 404）
+
+4. **测试今日课程卡片**：
+   - 应看到："今日课程"标签为蓝色信息标签样式
+   - "进入教室"按钮为蓝色主按钮样式
+   - 按钮样式应与之前一致（渐变背景、圆角）
+
+5. **测试排行榜卡片**：
+   - 应看到："查看全部"按钮为幽灵按钮样式（透明背景）
+   - 按钮样式应与之前一致（浅蓝背景、圆角）
+
+### 步骤 2：验证加载状态（Loading）
+
+1. **刷新页面**：
+   - 应看到：页面加载时显示 Loading 组件（spinner + "加载中..."文字）
+   - Loading 组件占满整行，居中显示
+
+2. **等待数据加载完成**（约 300ms）：
+   - 应看到：Loading 组件消失，显示正常内容
+
+### 步骤 3：验证空态（EmptyState）
+
+**注意**：当前 mock 数据都有值，需要手动测试空态。可以通过以下方式：
+
+1. **测试今日课程为空**：
+   - 修改 `src/api/student.js` 中的 `getTodayLesson` 函数，返回空数据：
+     ```javascript
+     return {
+       time: '--:--',
+       title: '',
+       range: '',
+       teacher: '',
+       lessonId: ''
+     }
+     ```
+   - 刷新页面
+   - 应看到：今日课程位置显示 EmptyState（图标：📚，标题："今日暂无课程"）
+
+2. **测试排行榜为空**：
+   - 修改 `src/api/student.js` 中的 `getRankList` 函数，返回空数组 `[]`
+   - 刷新页面
+   - 应看到：排行榜位置显示 EmptyState（图标：🏆，标题："暂无排行榜数据"）
+
+3. **测试奖励为空**：
+   - 修改 `src/api/student.js` 中的 `getRewardList` 函数，返回空数组 `[]`
+   - 刷新页面
+   - 应看到：奖励位置显示 EmptyState（图标：🎁，标题："暂无奖励"）
+
+4. **恢复 mock 数据**：测试完成后，恢复 `src/api/student.js` 中的原始数据
+
+### 步骤 4：验证响应式（PC/iPad/手机）
+
+1. **调整浏览器窗口宽度**：
+   - PC 端（>=1024px）：布局正常，左右两列
+   - iPad 端（768-1023px）：布局改为上下排列
+   - 手机端（<600px）：内边距缩小，按钮和输入框高度适配
+
+2. **所有基础控件在响应式下应正常显示**：
+   - BaseInput：手机端高度 48px
+   - BaseButton：手机端高度 44px
+   - StatusTag：样式正常
+   - Loading：样式正常
+   - EmptyState：样式正常
+
+### 步骤 5：验证样式一致性
+
+1. **对比修改前后的视觉效果**：
+   - 所有控件样式应与修改前完全一致
+   - 背景图、磨砂效果、阴影等保持不变
+   - 布局位置不变
+
+2. **检查 CSS 覆盖是否正确**：
+   - 搜索栏中的 BaseInput 应无边框和背景（由外层容器提供）
+   - 今日课程卡片中的 BaseButton 应占满宽度
+   - 排行榜卡片中的 BaseButton 应保持原有尺寸
+# DevLog - Day4 (Common 复用组件)
+
+## 1) 今天完成了什么（验收点逐条对照）
+
+- [x] 老师端首页、学生端首页入口方块复用 FeatureCard
+  - 新增/覆盖 `FeatureCard` 组件，支持 `title` / `subtitle` / `icon` / `active` / `click` 事件
+  - 学生端 `ActionPanel` 的 6 宫格入口全部改为用 `FeatureCard` 渲染，仍然通过 `emit('action', type)` 向外抛事件
+  - 老师端 `TeacherHomeView` 新增 2 列 FeatureCard 网格示例：学生管理 / 排课 / 备课 / 作业批改，点击先 `console.log`
+
+- [x] 学生端“今日课程”卡片复用 LessonCard
+  - 新增/覆盖通用 `LessonCard` 组件，支持 `tagText` / `time` / `title` / `meta` / `bgUrl` / `primaryText` / `primary` 事件
+  - 学生端 `TodayLessonCard` 变成薄包装，只负责把 `lesson` 对象映射到 `LessonCard` 的 props，并把 `primary` 事件转成 `enterClassroom`
+  - 样式沿用原 `TodayLessonCard`：背景图 + 大号时间 + 磨砂信息区 + 底部主按钮
+
+- [x] 新增通用 FilterBar 组件
+  - 新增 `FilterBar`，支持 `v-model` 搜索关键字、`filters` 数组和 `activeKey` 当前筛选
+  - 搜索输入使用 `BaseInput`（带 `prefixIcon` 和 `clearable`），筛选按钮使用 `BaseButton`（ghost/secondary）
+  - 视觉风格与 TopBar 搜索条保持一致（半透明磨砂长条）
+
+- [x] 新增通用 DataTable 组件
+  - 新增 `DataTable`，支持 `columns` / `rows` / `rowKey`，默认能渲染字符串/数字
+  - 支持列级自定义插槽 `cell-xxx`，用于操作列等特殊渲染
+  - 行 hover 高亮，整体使用统一磨砂/圆角/阴影风格，方便未来复用到学生列表/排课列表
+
+## 2) 新增/修改的文件清单
+
+- **新增**
+  - `src/components/common/FilterBar.vue`：通用筛选条组件（筛选按钮 + 搜索输入）
+  - `src/components/common/DataTable.vue`：通用表格组件（表头 + 行渲染 + cell 插槽）
+
+- **覆盖/修改**
+  - `src/components/common/FeatureCard.vue`：重写为通用功能入口方块，支持 icon/title/subtitle/active/click
+  - `src/components/common/LessonCard.vue`：重写为通用课次卡，支持标签、时间、标题、meta、背景图和主按钮
+  - `src/components/student/ActionPanel.vue`：6 宫格内部全部改用 `FeatureCard` 渲染
+  - `src/components/student/TodayLessonCard.vue`：内部改用 `LessonCard`，对外仍然暴露 `lesson` + `bgUrl` + `enterClassroom`
+  - `src/views/teacher/TeacherHomeView.vue`：新增 FeatureCard 网格示例（2 列），保留原 Base 组件 Demo
+
+## 3) 新增的关键变量 / 函数 / 事件说明（中文）
+
+- **FeatureCard 组件（`src/components/common/FeatureCard.vue`）**
+  - Props：
+    - `title`（String，必填）：入口主标题，例如“全部课程”
+    - `subtitle`（String，可选）：入口副标题，例如“按级别/章节”
+    - `icon`（String，可选）：左侧 emoji 或文字图标
+    - `active`（Boolean，默认 false）：是否高亮显示（边框和阴影更明显）
+  - 事件：
+    - `click`：用户点击整张卡片时触发，父组件用 `@click` 监听
+  - 说明：内部用 `<button>` 包裹，支持键盘 Enter/Space 激活，视觉风格与学生端 ActionPanel 原 tile 一致（磨砂 + 大圆角）
+
+- **LessonCard 组件（`src/components/common/LessonCard.vue`）**
+  - Props：
+    - `tagText`（String，默认 `'今日课程'`）：左上角状态标签文字
+    - `time`（String，必填）：大号时间，例如“09:30”
+    - `title`（String，必填）：课程标题
+    - `meta`（String，必填）：补充信息，例如“09:30–10:30 · 张老师”
+    - `bgUrl`（String，默认空）：背景图 URL，可选
+    - `primaryText`（String，默认 `'进入教室'`）：主按钮文字
+  - 事件：
+    - `primary`：点击主按钮时触发
+  - 依赖组件：
+    - `StatusTag`：标签组件，用于渲染左上角 `tagText`
+    - `BaseButton`：主按钮组件，用于渲染底部“进入教室”按钮
+
+- **FilterBar 组件（`src/components/common/FilterBar.vue`）**
+  - Props：
+    - `modelValue`（String，默认 ''）：搜索关键字，支持 `v-model`
+    - `filters`（Array<{ key, label }>，默认 `[]`）：筛选项数组
+    - `activeKey`（String，默认 ''）：当前选中的筛选 key
+  - 事件：
+    - `update:modelValue`：搜索关键字变更时触发，父组件通过 `v-model` 接收
+    - `change`：点击筛选项按钮时触发，参数为对应 `key`
+  - 内部变量：
+    - `searchText`（computed）：对 `modelValue` 做的 computed 封装，方便直接绑定到 `BaseInput`
+
+- **DataTable 组件（`src/components/common/DataTable.vue`）**
+  - Props：
+    - `columns`（Array<{ key, title, width? }>）：列配置数组
+    - `rows`（Array<any>）：数据行数组
+    - `rowKey`（String，默认 `'id'`）：每行唯一 key 字段名
+  - 插槽：
+    - `cell-xxx`：列级别作用域插槽，传入参数 `{ row, value }`
+      - 例如：`<template #cell-actions="{ row }">...</template>`
+  - 内部函数：
+    - `getRowKey(row, index)`：优先取 `row[rowKey]`，没有则回退用循环下标
+    - `formatCell(value)`：字符串/数字直接展示，其它类型尝试 `JSON.stringify`，失败则显示空字符串
+
+- **ActionPanel 组件（`src/components/student/ActionPanel.vue`）**
+  - Props：
+    - `bgUrl`（String，默认空）：右侧大面板背景图
+  - 事件：
+    - `action`：点击 6 宫格入口时触发，参数为入口类型字符串
+  - 变更点：
+    - 原来的 6 个 `<button>` 内部结构替换为 6 个 `FeatureCard`，分别对应“全部课程 / 水平分析 / 今日复习 / 抗遗忘 / 错题集 / 本周计划”
+    - 对外事件保持 `emit('action', type)` 不变
+
+- **TodayLessonCard 组件（`src/components/student/TodayLessonCard.vue`）**
+  - Props：
+    - `lesson`（Object，必填）：课程数据（`time/title/range/teacher/lessonId`）
+    - `bgUrl`（String，必填）：背景图 URL
+  - 事件：
+    - `enterClassroom`：点击“进入教室”按钮时触发
+  - 变更点：
+    - 内部不再直接写 StatusTag/BaseButton/背景图，而是把数据映射给 `LessonCard`：
+      - `time` ← `lesson.time`
+      - `title` ← `lesson.title`
+      - `meta` ← ``${lesson.range} · ${lesson.teacher}``
+      - `bgUrl` 直接透传
+    - `LessonCard` 的 `primary` 事件转成 `enterClassroom`
+
+- **TeacherHomeView 组件（`src/views/teacher/TeacherHomeView.vue`）**
+  - 新增函数：
+    - `handleFeatureClick(type: string)`：
+      - 作用：老师端 FeatureCard 网格点击时，在控制台打印类型字符串（先用于验收，不改路由）
+      - 使用位置：4 个入口卡片（学生管理/排课/备课/作业批改）的 `@click` 回调
+
+## 4) 我该怎么验证（一步一步）
+
+### 步骤 1：验证学生端首页入口 6 宫格复用 FeatureCard
+
+1. 访问学生端首页：`http://localhost:5173/student/home`
+2. 查看右侧 6 宫格入口：
+   - 每个入口都是统一风格的方块卡片（左侧 emoji 图标，右侧主/副标题）
+   - 悬浮时卡片轻微上浮、阴影加深
+3. 分别点击“全部课程 / 水平分析 / 今日复习 / 抗遗忘 / 错题集 / 本周计划”：
+   - 行为应与改造前一致（仍然跳转到原来的路由）
+   - 控制台不应报错
+
+### 步骤 2：验证学生端“今日课程”复用 LessonCard
+
+1. 保持 mock 数据为有课场景，访问：`http://localhost:5173/student/home`
+2. 查看左上“今日课程”卡片：
+   - 背景图、磨砂信息块、大号时间、标题、副信息、底部“进入教室”按钮的排布应与之前一致
+   - 标签使用 `StatusTag` 风格（蓝色信息标签）
+3. 点击“进入教室”按钮：
+   - 行为应与改造前一致（跳转到 `/student/classroom?lessonId=...` 或当前项目定义的教室路由）
+4. 控制台检查：
+   - 不应出现关于 `TodayLessonCard` 或 `LessonCard` 的报错
+
+### 步骤 3：验证老师端首页也使用 FeatureCard
+
+1. 访问老师端首页：`http://localhost:5173/teacher/home`
+2. 在标题下方应看到一个“功能入口示例（FeatureCard 复用）”区域：
+   - 2 列网格（窄屏时变为 1 列）
+   - 4 个入口：学生管理 / 排课 / 备课 / 作业批改，风格和学生端入口方块一致
+3. 点击任意一个入口：
+   - 控制台应打印形如 `Teacher feature click: student-management` 的日志
+   - 页面不报错，原 Base 组件 Demo 仍能正常使用
+
+### 步骤 4：验证 FilterBar 与 DataTable 基本行为（最小用例）
+
+> 当前项目暂未接入 FilterBar/DataTable 到具体页面，可通过临时 Demo 组件快速验证。
+
+1. 在任意临时页面中引入 `FilterBar`：
+   - 传入 `filters=[{ key: 'all', label: '全部' }, { key: 'active', label: '进行中' }]`
+   - 绑定 `v-model="keyword"` 和 `:active-key="activeKey"`，监听 `@change` 更新 `activeKey`
+   - 输入搜索关键字、点击清除按钮，确认 `keyword` 变化正常
+   - 点击不同筛选按钮，确认 `activeKey` 更新且样式有明显高亮
+2. 在同一页面引入 `DataTable`：
+   - 传入 `columns=[{ key: 'name', title: '姓名' }, { key: 'age', title: '年龄' }]`
+   - 传入 `rows=[{ id: 1, name: '小明', age: 12 }]`
+   - 表头应正确显示“姓名/年龄”，行 hover 时背景高亮
+   - 不传 `rows` 或传空数组时，应显示“暂无数据”
+
+如果你希望，我可以在下一步帮你把 `FilterBar` + `DataTable` 接到某个列表页上做一个完整示例。
+
+
+一、修改 / 新增文件列表（路径 + 摘要）
+src/assets/responsive-tokens.css（新增）
+定义全局响应式 tokens：统一断点（PC / iPad / 手机）、容器宽度、页面内边距、字体大小、间距、卡片圆角、触控高度等，每个变量都附中文注释。
+src/assets/main.css
+在全局入口新增 @import './responsive-tokens.css';，只引入一次，供全站使用响应式变量。
+src/components/common/AppShell.vue
+内容区增加 contentInner 容器：使用 max-width: var(--layout-content-max-width) + margin: 0 auto + padding 使用全局 tokens，实现所有页面 PC 居中、iPad/手机自适应。
+顶部栏 padding、标题字号、退出按钮圆角/高度改为使用全局 tokens。
+退出按钮逻辑改为：清理 auth_token、auth_role 后跳转 /login。
+src/views/student/StudentHomeView.vue（只改样式部分）
+.page 去掉额外 padding，完全交给 AppShell 控制，避免双重内边距导致“爆版”。
+.shell 最大宽度改用 var(--layout-content-max-width)。
+布局 gap 使用 var(--space-lg)，空态卡片圆角使用 var(--card-radius-lg)。
+新增/调整断点：
+PC：仍为左右两列。
+iPad（768–1023.98）：.layout 改为单列（上下堆叠），使用全局间距。
+手机（<768）：单列布局，左右不再自加 padding，gap 改为 var(--space-md)，保证不挤压，不产生横向滚动。
+src/router/index.js
+在现有路由表不变的前提下，新增“最小登录守卫” + “上一跳记录”逻辑（见下一节详细注释）。
+src/views/LoginView.vue
+登录逻辑改为：
+校验手机号和密码非空；
+根据用户在页面上选择的角色（学生/老师/家长），写入 localStorage：
+auth_token = 'mock-token-时间戳'
+auth_role = 'student' | 'teacher' | 'parent'
+若 URL 上有 ?redirect= 且与角色前缀一致，则跳转该地址，否则跳该角色首页。
+模板中新增“角色选择”按钮组（学生/老师/家长），不新增页面。
+样式中增加 .roleRow、.roleBtn、.roleBtn.active，保证按钮可点且在小屏下自动换行、不爆版。
+
+、响应式 tokens 中每个变量的中文注释（摘要）
+都在 src/assets/responsive-tokens.css，这里归纳一份便于理解（PC 默认，iPad/手机在对应 media 中做了调整，含同类注释）：
+--layout-content-max-width：页面最大内容宽度（PC 端中间的内容区最大宽度，保证两侧留白，不会在大屏上铺太宽）。
+--layout-page-padding-x：页面左右内边距（TopBar + 页面内容统一的左右留白）。
+--layout-page-padding-y：页面上下内边距（防止内容贴着顶部/底部）。
+--font-body-size：基础正文字体大小（大部分文本使用）。
+--font-title-size：普通标题字号（页面标题 / 卡片标题）。
+--font-title-lg-size：大标题字号（如登录页主标题）。
+--card-radius-lg：大卡片圆角（面板 / 卡片等容器）。
+--radius-sm：小组件圆角（按钮 / 输入框等）。
+--space-lg：区块间距（模块之间的垂直或水平间距，比如两大块卡片）。
+--space-md：元素间距（同一模块内部的表单项、文字等间距）。
+--space-sm：小元素间距（图标、标签之间的小空隙）。
+--tap-target-min-height：可点击区域最小高度（按钮、输入框等统一不小于 44px，提升触控体验）。
+iPad、手机 media 中为这些变量分别调小/调大，注释说明了“略减间距 / 放大字号 / 调整圆角”等目的，你可以直接在该文件里对照阅读。
+1. 验证响应式（宽度 1400 → 375）
+建议用浏览器开发者工具的“响应式设计模式”，分别试这些宽度：
+PC 大屏（宽度约 1400）
+打开 http://localhost:5173/#/login（或 Vite 实际端口）。
+登录为学生（手机号/密码随便填，选“学生”角色），进入 /student/home。
+窗口宽度拉到 1400 左右：
+内容区居中，两侧有留白；
+今日课程、排行榜在左列，六宫格和奖励在右列；
+页面无横向滚动条。
+PC 普通宽度（宽度约 1200）
+窗口缩到 ~1200 宽。
+布局仍是左右两列，只是两侧白边略减少；仍无横向滚动条。
+iPad 横屏（宽度约 1024）
+把宽度调到 1024。
+学生首页变为上下堆叠：上面是“今日课程 + 排行”整体一列，下面是“六宫格 + 奖励”整体一列；模块不重叠、不被裁切。
+iPad 竖屏 / 小平板（宽度约 800）
+宽度调到 800。
+仍是单列堆叠，间距合理，没有横向滚动条。
+大手机（宽度约 600）
+宽度调到 600，查看 /student/home。
+页面单列布局，各块垂直排列，按钮和卡片可正常点，底部无横向滚动条。
+小手机（宽度约 375）
+宽度调到 375。
+检查：
+顶部栏和页面左右有轻微留白（来自 AppShell + tokens）；
+六宫格按钮区在竖向可完整显示，点击区域高度明显≥44px；
+页面没有横向滚动条，内容不重叠。
+2. 验证最小登录守卫
+未登录访问受保护路由 → 自动跳 /login
+打开浏览器控制台，执行：
+localStorage.removeItem('auth_token'); localStorage.removeItem('auth_role');
+直接在地址栏输入：/student/home 或 /teacher/home 或 /parent/home。
+观察：会被自动重定向到 /login。
+登录为 student → 能访问 /student/home
+在 /login：随便填手机号和密码。
+在“以哪个角色登录？”处选择“学生”。
+点击“登录”：应进入 /student/home，此时 localStorage 中有 auth_token 和 auth_role = 'student'。
+role 不匹配时自动跳回自己角色首页
+保持 auth_role = 'student'（上一步已登录）。
+手动在地址栏输入 /teacher/home。
+观察：会立刻被重定向到 /student/home（因为守卫发现角色不匹配）。
+同理：以“老师”角色登录后，访问 /student/home 或 /parent/home 都会被送回 /teacher/home。
+退出清理登录态并回 /login
+保持已登录（任意角色），进入对应首页。
+点击页面顶部右侧的“退出”按钮（由 AppShell 提供）。
+观察：
+页面跳转到 /login；
+控制台查看：localStorage.getItem('auth_token') 和 auth_role 都是 null。
+再次直接访问 /student/home 等受保护地址，会重新被送回 /login。
+
+
+今天完成了什么（对照验收点）
+抽 3 个通用组件：
+GlassCard.vue：统一了磨砂卡片的圆角、边框、blur、阴影、内边距，使用 responsive-tokens.css 和 base-tokens.css 的变量，支持 variant 和 padding 配置。
+SectionHeader.vue：抽出“左标题 + 右动作区”的标题行结构，现已用于排行榜和奖励卡的标题。
+IconStatGrid.vue：抽出“图标 + 数量”的网格结构，支持 columns 配置，PC 默认 4 列，手机自动降为 2 列，避免横向滚动。
+重构现有组件使用新组件：
+RankCard.vue：原来的 .rankCard + .glassCard + .rankHead 结构被替换为 GlassCard + SectionHeader + 保留原有行布局，重复的磨砂样式和标题行 CSS 删除。
+RewardCard.vue：原 card / rewardCard / rewardHead / rewardIcons 的大段样式删除，改为使用 GlassCard 统一磨砂壳，SectionHeader 做标题行，IconStatGrid 负责图标 + 数值网格。
+TodayLessonCard.vue：外层增加一层 GlassCard 包裹，和左下/右下卡片统一使用通用磨砂壳（内部 LessonCard 不变，交互与布局保持）。
+样式规范：
+新增/改动 CSS 中尽量使用 --card-radius-lg、--space-md、--base-spacing-md、--base-radius-lg 等变量，只有少数为对齐视觉必须的像素（如高度 210px、名次宽 34px、徽章 44px）保留并加注释。
+自查：
+新组件只作用在卡片内部，不改变 StudentHome 的 grid 布局，iPad 断点仍是上下堆叠，未新增横向滚动。
+路由与登录守卫文件未改动，auth_token / auth_role 逻辑和退出清理依旧生效。
+2. 新增的变量 / 函数 / 事件（按文件列出）
+src/components/common/GlassCard.vue
+props.variant：控制磨砂强度，'light' | 'strong'，用于区分主次模块的视觉对比。
+props.padding：控制卡片内边距，'none' | 'sm' | 'md' | 'lg'，内部映射为不同的 padding class。
+paddingClass（computed）：根据 padding 生成 glassCard--pad-xxx 类名，样式层使用 base-tokens 间距变量具体实现。
+src/components/common/SectionHeader.vue
+props.title：左侧主标题文本，字符串必填。
+slot actions：右侧操作区域插槽，用于放按钮（例如排行榜“查看全部”按钮）。
+src/components/common/IconStatGrid.vue
+props.items：图标统计数组，约定 fields：key / emoji / count / className，RewardCard 直接透传奖励列表。
+props.columns：基础列数（Number，默认 4），传入后通过 CSS 变量控制网格列数。
+gridStyle（computed）：返回形如 { '--icon-grid-cols': '4' } 的对象，用于绑定到根元素 style，使 CSS 能读取列数。
+src/components/student/RankCard.vue
+新引入组件：
+GlassCard：作为排行榜整体外壳，提供磨砂 + 圆角 + 阴影。
+SectionHeader：作为“排行榜 + 查看全部”标题行。
+模板变化：
+外层容器改为 <GlassCard class="rankCard" variant="strong" padding="md">，原 .glassCard 样式删除。
+标题行改为 <SectionHeader title="排行榜"> + #actions 插槽放 BaseButton，删除原 .rankHead + .rankTitle CSS。
+原事件 viewAll 保持不变，点击行为与之前一致。
+src/components/student/RewardCard.vue
+新引入组件：
+GlassCard：作为奖励卡外壳。
+SectionHeader：标题“我的奖励”。
+IconStatGrid：展示“emoji + 数量”网格。
+逻辑：
+原有 cardStyle 计算属性保留，用在 GlassCard 上以应用背景图。
+模板变化：
+外层改用 <GlassCard class="rewardCard" ...> 替代 .card + .rewardCard 组合。
+标题行改用 <SectionHeader title="我的奖励" />，删除 .rewardHead / .rewardTitle。
+奖励图标使用 <IconStatGrid :items="rewardList" :columns="4" />，删除 .rewardIcons / .rewardIconItem / .badge / .rewardCount 的详细 CSS。
+src/components/student/TodayLessonCard.vue
+新引入组件：
+GlassCard：作为 TodayLessonCard 外层容器。
+模板变化：
+原来单一的 <LessonCard ... /> 外包裹为 <GlassCard variant="strong" padding="none" class="todayLessonCard">，内部 LessonCard props 和事件完全不变。
+样式：
+新增 .todayLessonCard 空样式，只用于在需要时做外壳调整，目前不额外加 padding，保持 LessonCard 原有视觉。
+3. 为什么这么做（1–2 句）
+把“磨砂卡片壳”、“标题行”、“图标网格”这三种高频重复结构抽成通用组件，可以减少重复 CSS 与模板代码，后续如果要改圆角/阴影/列数，只需要在通用组件里改一次。
+使用 responsive-tokens.css 和 base-tokens.css 的变量（而不是散落的魔法数字），可以保证 PC / iPad / 手机三端在间距、圆角和字体上更统一，更易于维护和调整。
+
+# DevLog - Day8（学生端路由联通 + 入口跳转）
+
+## 1) 今天完成了什么（验收点逐条对照）
+
+- [x] 学生端功能页路由路径与业务约定对齐  
+  - `/student/courses` → `StudentCoursesView`（保持不变，用于“全部课程”）
+  - `/student/review/today` → `StudentReviewTodayView`（原 `/student/review-today`）
+  - `/student/anti-forget` → `StudentForgettingCurveView`（原 `/student/forgetting-curve`）
+  - `/student/plan/week` → `StudentWeekPlanView`（原 `/student/week-plan`）
+  - `/student/mistakes` → `StudentWrongbookView`（原 `/student/wrongbook`）
+  - `/student/classroom/:lessonId` 保持不变，仍指向 `StudentClassroomView`
+
+- [x] ActionPanel 6 个按钮点击后跳转到上述路由  
+  - 保持按钮标识不变（`allCourses / levelAnalysis / todayReview / antiForget / mistakes / weeklyPlan`）  
+  - 仅更新 `antiForget` 对应路径为 `/student/anti-forget`，其余路径与 router 中保持一致  
+  - 不改变 StudentHome 的整体布局和现有交互（只改跳转路径）
+
+- [x] 新增学生端“水平分析”和“搜索结果”占位页（仅在项目内不存在时创建）  
+  - `StudentLevelView.vue`：路径 `/student/level`，用于 ActionPanel 的“水平分析”入口  
+  - `StudentSearchView.vue`：路径 `/student/search`，用于顶部搜索框搜索结果  
+  - 两个页面均使用 `AppShell` 包一层，内部只放简单标题+说明文案，方便后续补充业务逻辑
+
+## 2) 新增/修改的文件清单（并标记：新增 / 修改 / 不变）
+
+- **修改**：`src/router/index.js`  
+  - 调整学生端路由路径以对齐 Day8 约定：  
+    - `/student/review-today` → `/student/review/today`（组件仍为 `StudentReviewTodayView`）  
+    - `/student/forgetting-curve` → `/student/anti-forget`（组件仍为 `StudentForgettingCurveView`）  
+    - `/student/week-plan` → `/student/plan/week`（组件仍为 `StudentWeekPlanView`）  
+    - `/student/wrongbook` → `/student/mistakes`（组件仍为 `StudentWrongbookView`）  
+  - 新增 2 条路由：  
+    - `/student/level` → 挂载到 `StudentLevelView`（水平分析占位）  
+    - `/student/search` → 挂载到 `StudentSearchView`（搜索结果占位）  
+  - 登录守卫和退出清理逻辑未改动（只改具体 path 字符串，依旧以 `/student` 前缀判断）
+
+- **修改**：`src/views/student/StudentHomeView.vue`  
+  - 在 `handleAction` 的 `routeMap` 中将 `antiForget` 对应路径从 `/student/forget` 改为 `/student/anti-forget`，与 router 新路径保持一致  
+  - 其余 5 个入口路径（`/student/courses` / `/student/level` / `/student/review/today` / `/student/mistakes` / `/student/plan/week`）保持不变
+
+- **新增**：`src/views/student/StudentLevelView.vue`  
+  - 使用 `AppShell`，`title="水平分析"`  
+  - 页面内只包含一个主标题“水平分析（StudentLevelView）”和一行说明文案，用于提示该页是路由占位  
+  - PC / iPad / 手机下由 AppShell + tokens 控制布局，不做额外复杂样式
+
+- **新增**：`src/views/student/StudentSearchView.vue`  
+  - 使用 `AppShell`，`title="搜索结果"`  
+  - 页面内只包含一个主标题“搜索结果（StudentSearchView）”和一行说明文案，用于提示该页是搜索结果占位  
+  - 后续可在该页面接入搜索 API 和结果列表，不影响当前路由结构
+
+> 其余文件（如 `ActionPanel.vue`、`StudentCoursesView.vue` 等）在 Day8 中 **不作改动（标记为不变）**。
+
+## 3) 新增的关键变量 / 函数 / 事件说明（中文）
+
+- **router/index.js（修改）**
+  - 路由项：`/student/review/today`  
+    - 作用：学生端“今日复习”页面的新路径，对应组件 `StudentReviewTodayView`  
+    - 谁用它：StudentHome 中 `ActionPanel` 的 “今日复习” 按钮（通过 `handleAction('todayReview')` → `/student/review/today`）
+  - 路由项：`/student/anti-forget`  
+    - 作用：学生端“抗遗忘”页面的新路径，对应组件 `StudentForgettingCurveView`  
+    - 谁用它：StudentHome 中 `ActionPanel` 的 “抗遗忘” 按钮（`antiForget` → `/student/anti-forget`）
+  - 路由项：`/student/plan/week`  
+    - 作用：学生端“本周计划”页面的新路径，对应组件 `StudentWeekPlanView`  
+    - 谁用它：StudentHome 中 `ActionPanel` 的 “本周计划” 按钮
+  - 路由项：`/student/mistakes`  
+    - 作用：学生端“错题集”页面的新路径，对应组件 `StudentWrongbookView`  
+    - 谁用它：StudentHome 中 `ActionPanel` 的 “错题集” 按钮
+  - 路由项：`/student/level`  
+    - 作用：学生端“水平分析”占位页路径，对应新建的 `StudentLevelView`  
+    - 谁用它：StudentHome 中 `ActionPanel` 的 “水平分析” 按钮（`levelAnalysis` → `/student/level`）
+  - 路由项：`/student/search`  
+    - 作用：学生端“搜索结果”占位页路径，对应新建的 `StudentSearchView`  
+    - 谁用它：StudentHome 顶部 `TopBar` 搜索框在触发搜索事件时 `router.push('/student/search')`
+
+- **StudentHomeView（修改）**
+  - 变量：`routeMap.antiForget`  
+    - 旧值：`'/student/forget'`（与 router 中路径不一致）  
+    - 新值：`'/student/anti-forget'`  
+    - 作用：点击 ActionPanel “抗遗忘” 按钮时，跳转到正确的 `/student/anti-forget` 路由  
+    - 位置：`src/views/student/StudentHomeView.vue` 的 `handleAction` 函数内部
+
+- **StudentLevelView（新增占位页）**
+  - 组件：`StudentLevelView`  
+    - 作用：为 `/student/level` 路由提供最小页面骨架，后续可接入水平分析报表  
+    - 位置：`src/views/student/StudentLevelView.vue`  
+    - 使用方式：通过路由访问 `/student/level` 或从学生首页 ActionPanel 点击“水平分析”
+
+- **StudentSearchView（新增占位页）**
+  - 组件：`StudentSearchView`  
+    - 作用：为 `/student/search` 路由提供最小搜索结果页面骨架，后续可接入搜索结果列表  
+    - 位置：`src/views/student/StudentSearchView.vue`  
+    - 使用方式：通过顶部搜索框搜索后跳转到 `/student/search`
+
+## 4) 我该怎么验证（一步一步）
+
+### 步骤 1：验证路由路径是否对齐业务约定
+
+1. 打开浏览器控制台，清理登录态：  
+   执行 `localStorage.removeItem('auth_token'); localStorage.removeItem('auth_role');`
+2. 在地址栏输入 `/login`，用任意手机号 + 密码登录，选择“学生”角色，点击“登录”，进入 `/student/home`。
+3. 依次在地址栏直接访问以下路径，确认页面可正常加载且不会 404：  
+   - `/student/courses` → 显示现有 `StudentCoursesView` 内容  
+   - `/student/review/today` → 显示 `StudentReviewTodayView` 内容  
+   - `/student/anti-forget` → 显示 `StudentForgettingCurveView` 内容  
+   - `/student/plan/week` → 显示 `StudentWeekPlanView` 内容  
+   - `/student/mistakes` → 显示 `StudentWrongbookView` 内容  
+   - `/student/classroom/123` → 显示 `StudentClassroomView` 占位内容（进入教室路由保持不变）
+
+> 同时确认：访问这些地址时，若未登录仍会被全局守卫重定向到 `/login`，说明 Day8 改动未破坏登录守卫。
+
+### 步骤 2：验证 ActionPanel 6 个按钮跳转是否正确
+
+1. 以学生身份登录并进入 `/student/home`。  
+2. 看右侧 6 宫格按钮，逐个点击并观察地址栏变化：  
+   - 点击“全部课程”：地址栏应变为 `/student/courses`，页面不报错。  
+   - 点击“水平分析”：地址栏应变为 `/student/level`，页面显示“水平分析（StudentLevelView）”占位文案。  
+   - 点击“今日复习”：地址栏应变为 `/student/review/today`，进入 `StudentReviewTodayView`。  
+   - 点击“抗遗忘”：地址栏应变为 `/student/anti-forget`，进入 `StudentForgettingCurveView`。  
+   - 点击“错题集”：地址栏应变为 `/student/mistakes`，进入 `StudentWrongbookView`。  
+   - 点击“本周计划”：地址栏应变为 `/student/plan/week`，进入 `StudentWeekPlanView`。
+
+### 步骤 3：验证新建占位页内容
+
+1. 在学生首页点击 ActionPanel 的“水平分析”按钮：  
+   - 应进入 `/student/level`，页面顶部 AppShell 标题栏显示“水平分析”，正文看到“水平分析（StudentLevelView）”字样。
+2. 在学生首页顶部搜索框输入任意关键字，点击搜索按钮：  
+   - 应跳转到 `/student/search`，页面顶部标题栏显示“搜索结果”，正文看到“搜索结果（StudentSearchView）”字样。  
+3. 把浏览器宽度从 1400 拖动到 375：  
+   - 这两个新页面内容一直居中靠上排列，没有横向滚动条，退出按钮和登录守卫行为与其它页面保持一致。
+
+# DevLog - Day1（教师端首页重构）
+
+> 操作时间：2025-12-19  
+> 当前整体进度：约 20%
+
+## 1) 今天完成了什么（对照验收点）
+
+- **重构教师端首页为“老师指挥中心”**
+  - 使用 `AppShell` 包裹页面，作为老师角色的统一壳组件，`showBack=false` + `showLogout=true`
+  - 顶部通过 `header` slot 引入 `TopBar`，展示搜索框 + 老师信息条
+  - 主体区域拆为两块：统计概览区 + 三大入口区
+
+- **创建老师首页统计 Mock 接口**
+  - 在 `src/api/teacher.js` 新增 `getTeacherStats` 方法，返回固定 Mock 数据：
+    - `studentCount: 12`（名下学生数）
+    - `todayLessonCount: 3`（今日上课节数）
+    - `billingAmount: 1500`（本月服务费金额，单位：元）
+  - `TeacherHomeView` 在挂载时调用该接口，加载统计数据并在页面展示
+
+- **使用 IconStatGrid 展示 3 个核心指标**
+  - 复用 `IconStatGrid` 组件构建“老师概览”区域
+  - 三个统计项分别使用 emoji + 数值：
+    - 👩‍🎓 学生数量
+    - 📚 今日课程节数
+    - 💰 本月服务费金额
+
+- **三大入口使用 FeatureCard 布局（Grid）**
+  - 使用 `FeatureCard` 组件构建 3 个工作入口，采用响应式 Grid 布局：
+    - PC：3 列
+    - iPad：2 列
+    - 手机：1 列
+  - 三张卡片分别为：
+    - **学生管理** → 点击跳转 `/teacher/students`
+    - **排课日程** → 点击跳转 `/teacher/schedule`
+    - **服务费台账** → 点击跳转 `/teacher/billing`
+
+- **废弃旧 Demo 代码**
+  - 删除原先在 `TeacherHomeView` 中用于 Base 组件演示的 Demo 区域（按钮/输入框/弹窗/空态/加载等示例）
+  - 老师首页从 Demo 展示页，升级为真正的“老师指挥中心”页面
+
+- **补齐老师端路由与占位页，避免 404**
+  - 在 `router/index.js` 中新增 3 条老师端路由：
+    - `/teacher/students` → 学生花名册
+    - `/teacher/schedule` → 排课日程
+    - `/teacher/billing` → 服务费台账
+  - 按约定为这 3 个路由创建占位页（AppShell + 标题 + 一行说明）：
+    - `StudentListView.vue`（Day2 将在此基础上实现学生列表）
+    - `TeacherScheduleView.vue`（Day3 将在此基础上实现排课日历）
+    - `TeacherBillingView.vue`（后续接入账单与结算明细）
+
+## 2) 新增 / 修改文件清单
+
+- **新增**
+  - `src/api/teacher.js`  
+    - 新增 `getTeacherStats` Mock 接口，老师首页统计数据来源
+
+  - `src/views/teacher/StudentListView.vue`  
+    - 学生花名册占位页：`/teacher/students`
+
+  - `src/views/teacher/TeacherScheduleView.vue`  
+    - 排课日程占位页：`/teacher/schedule`
+
+  - `src/views/teacher/TeacherBillingView.vue`  
+    - 服务费台账占位页：`/teacher/billing`
+
+- **修改**
+  - `src/views/teacher/TeacherHomeView.vue`  
+    - **重写页面结构**：移除所有 Base 组件 Demo，改为“统计概览 + 三大入口”的 Dashboard 布局  
+    - 引入组件：`AppShell`、`TopBar`、`FeatureCard`、`IconStatGrid`、`Loading`、`EmptyState`  
+    - 在 `onMounted` 中调用 `getTeacherStats`，渲染老师概览统计数据  
+    - 点击三张 FeatureCard 分别跳转 `/teacher/students`、`/teacher/schedule`、`/teacher/billing`
+
+  - `src/router/index.js`  
+    - 引入 3 个新的老师端视图组件：`StudentListView`、`TeacherScheduleView`、`TeacherBillingView`  
+    - 在老师路由区域新增：
+      - `/teacher/students` → `StudentListView`
+      - `/teacher/schedule` → `TeacherScheduleView`
+      - `/teacher/billing` → `TeacherBillingView`
+    - 保持原有登录守卫逻辑不变（仍然以 `/teacher` 前缀作为受保护路由）
+
+## 3) 新增的关键变量 / 函数 / 事件说明（中文）
+
+### 3.1 `src/api/teacher.js`
+
+- **函数：`getTeacherStats()`**
+  - 返回值（Promise）：  
+    `{ studentCount: number, todayLessonCount: number, billingAmount: number }`
+  - 作用：为老师首页提供统计概览数据（目前为前端 Mock，后续可替换为真实接口）
+  - 使用位置：`src/views/teacher/TeacherHomeView.vue` 中的 `onMounted` 生命周期
+
+### 3.2 `src/views/teacher/TeacherHomeView.vue`
+
+- **变量：`teacherUser`（reactive）**
+  - 结构：`{ name: string, avatarUrl: string, points: number }`
+  - 作用：作为 `TopBar` 的 `user` 属性，用于在老师端顶部展示老师姓名与头像占位
+  - 默认值：`name = '张老师'`，头像为空（使用首字渲染占位）
+
+- **变量：`searchText`（ref<string>）**
+  - 作用：绑定到 `TopBar` 的搜索输入框（`v-model:searchText`）
+  - 当前行为：输入后点击搜索按钮会在控制台打印关键字，预留后续接入搜索功能
+
+- **变量：`stats`（reactive）**
+  - 结构：
+    - `studentCount`：学生数量
+    - `todayLessonCount`：今日上课节数
+    - `billingAmount`：本月服务费金额
+  - 作用：存放从 `getTeacherStats()` 接口获取到的统计数据，供页面展示
+
+- **变量：`isLoading` / `isError` / `errorMessage`（ref）**
+  - 作用：控制统计概览区域的加载态、错误态展示
+  - 使用：
+    - 加载中：显示 `Loading` 组件
+    - 加载失败：显示 `EmptyState` 组件与错误文案
+
+- **计算属性：`statItems`**
+  - 类型：`Array<{ key, emoji, count, className }>`
+  - 作用：适配 `IconStatGrid` 所需的数据结构，将 `stats` 映射为 3 个统计条目
+  - 展示内容：
+    - `👩‍🎓` + `studentCount`
+    - `📚` + `todayLessonCount`
+    - `💰` + `billingAmount`
+
+- **函数：`handleSearch()`**
+  - 作用：处理老师顶部搜索操作（当前为占位逻辑）
+  - 行为：
+    - 去除前后空格后，如果关键字为空则直接返回
+    - 非空时在控制台打印：`Teacher search keyword: xxx`
+
+- **函数：`goStudents()` / `goSchedule()` / `goBilling()`**
+  - 作用：处理 3 张 FeatureCard 的点击事件
+  - 行为：
+    - `goStudents()` → `router.push('/teacher/students')`
+    - `goSchedule()` → `router.push('/teacher/schedule')`
+    - `goBilling()` → `router.push('/teacher/billing')`
+
+### 3.3 新增占位页（老师端）
+
+- **`StudentListView.vue`**
+  - 路径：`/teacher/students`
+  - 作用：学生花名册占位页，为 Day2 的学生列表表格准备骨架
+  - 内容：使用 `AppShell` + 标题“学生花名册（占位页）”+ 一行说明
+
+- **`TeacherScheduleView.vue`**
+  - 路径：`/teacher/schedule`
+  - 作用：排课日程占位页，为 Day3 的排课日历准备骨架
+  - 内容：使用 `AppShell` + 标题“排课日程（占位页）”+ 一行说明
+
+- **`TeacherBillingView.vue`**
+  - 路径：`/teacher/billing`
+  - 作用：服务费台账占位页，为后续账单模块准备骨架
+  - 内容：使用 `AppShell` + 标题“服务费台账（占位页）”+ 一行说明
+
+## 4) 我该怎么验证（一步一步）
+
+### 步骤 1：登录老师账号，查看首页样式
+
+1. 打开浏览器，访问 `/login`
+2. 任意输入手机号和密码，在“以哪个角色登录？”处选择 **老师**
+3. 点击“登录”，应自动跳转到 `/teacher/home`
+4. 验证顶部：
+   - 顶栏为白色非透明底色，有轻微阴影
+   - 左侧为搜索框，右侧为“张老师”+ 圆形头像占位
+   - 顶栏右侧有“退出”按钮，**没有**返回按钮
+5. 验证主体：
+   - 上方为“老师指挥中心”标题与一行说明
+   - 下方有一排带图标的统计（学生数 / 今日课程 / 本月服务费）
+   - 再下方有三张功能卡片：“学生管理 / 排课日程 / 服务费台账”
+
+### 步骤 2：验证统计数据加载与容错
+
+1. 保持在 `/teacher/home` 页面
+2. 观察加载过程：
+   - 首次进入时，统计区域短暂显示“统计数据加载中...”的 Loading 组件
+   - 之后应看到 3 个统计图标与数值（12 / 3 / 1500）
+3. 人为制造错误测试（可选）：
+   - 打开 `src/api/teacher.js`，让 `getTeacherStats` 抛出异常（例如 `throw new Error('test')`）
+   - 重新刷新 `/teacher/home`
+   - 统计区域应显示 EmptyState，标题为“统计数据加载失败”，并展示错误文案
+   - 测试完成后恢复 `getTeacherStats` 的实现
+
+### 步骤 3：验证三大入口的点击跳转
+
+在 `/teacher/home` 中，分别点击三张 FeatureCard，观察浏览器地址栏：
+
+1. 点击“学生管理”卡片：
+   - 地址栏应变为 `/teacher/students`
+   - 页面标题为“学生花名册”，正文显示“学生花名册（占位页）”
+2. 点击浏览器“后退”按钮或使用 AppShell 顶栏返回回到 `/teacher/home`
+3. 点击“排课日程”卡片：
+   - 地址栏应变为 `/teacher/schedule`
+   - 页面标题为“排课日程”，正文显示“排课日程（占位页）”
+4. 再次返回 `/teacher/home`，点击“服务费台账”卡片：
+   - 地址栏应变为 `/teacher/billing`
+   - 页面标题为“服务费台账”，正文显示“服务费台账（占位页）”
+
+### 步骤 4：验证路由与登录守卫不冲突
+
+1. 在 Console 中执行：
+   - `localStorage.removeItem('auth_token'); localStorage.removeItem('auth_role');`
+2. 直接在地址栏访问：
+   - `/teacher/home`、`/teacher/students`、`/teacher/schedule`、`/teacher/billing`
+3. 预期行为：
+   - 均会被重定向到 `/login`
+   - 登录为“老师”后再次访问这些地址，均能正常进入页面，不出现 404
+
+### 步骤 5：确认日志已更新
+
+1. 打开项目根目录下的 `docs/DevLog.md`
+2. 滚动到文末，确认能看到 **“DevLog - Day1（教师端首页重构）”** 这一节
+3. 该节中应清晰记录：
+   - 操作时间
+   - 修改 / 新增文件列表
+   - 核心变量 / 函数说明
+   - 验证步骤
+
+# DevLog - Day2（学生花名册列表页）
+
+> 操作时间：2025-12-19  
+> 当前整体进度：约 30%
+
+## 1) 今天完成了什么（对照验收点）
+
+- **实现老师端学生列表页（学生花名册）**
+  - 在 `src/api/teacher.js` 中新增 `getStudentList` 接口，返回包含 ID、姓名、头像 URL、手机号、剩余课时、最近上课时间的 Mock 数据
+  - 特别包含一名 `balance < 4` 的学生（课时仅 2 节），用于测试“课时预警”逻辑
+  - 重写 `StudentListView.vue`，使用 `FilterBar + DataTable + StatusTag` 组合，实现学生列表展示与前端过滤
+
+- **顶部使用 FilterBar + 搜索（前端过滤 name）**
+  - 顶部区域使用 `FilterBar` 组件，支持：
+    - 搜索框：`v-model="keyword"`，对学生姓名进行前端模糊过滤（忽略大小写）
+    - 简单筛选：`filters = [{ all }, { lowBalance }]`，可切换“全部学生 / 仅看课时不足”
+  - 当选择“仅看课时不足”时，只显示 `balance < 4` 的学生
+
+- **主体使用 DataTable + StatusTag 实现表格与预警**
+  - 使用 `DataTable` 组件渲染五列：
+    - 姓名（name）
+    - 手机号（phone）
+    - 剩余课时（balance，使用 `StatusTag` 显示绿色/红色）
+    - 最近上课（lastLessonAt，格式化为本地时间）
+    - 操作（actions，预留“查看详情”按钮）
+  - 剩余课时列逻辑：
+    - `balance < 4` → 使用 `StatusTag type="danger"`（红色）+ 文案“剩余 X 课时”
+    - 否则使用 `StatusTag type="success"`（绿色）
+
+- **路由联通与守卫保持不变**
+  - `/teacher/students` 路由在 Day1 已注册，本次直接挂载新的 `StudentListView` 实现
+  - 登录守卫逻辑保持不变：
+    - 未登录访问 `/teacher/students` 会被重定向到 `/login`
+    - 仅当 `auth_role = 'teacher'` 时可正常访问学生花名册
+
+## 2) 新增 / 修改文件清单
+
+- **新增（本日无新增文件）**
+  - 无
+
+- **修改**
+  - `src/api/teacher.js`  
+    - 新增 `getStudentList` 方法，返回固定 Mock 学生列表（含一名课时不足预警学生）
+  - `src/views/teacher/StudentListView.vue`  
+    - 页面由原占位页改为完整学生列表页，使用 `FilterBar + DataTable + StatusTag + Loading + EmptyState`
+
+## 3) 新增的关键变量 / 函数 / 事件说明（中文）
+
+### 3.1 `src/api/teacher.js`
+
+- **函数：`getStudentList()`**
+  - 返回值（Promise）：`Array<{ id, name, avatarUrl, phone, balance, lastLessonAt }>`
+  - 字段说明：
+    - `id`：学生唯一 ID
+    - `name`：学生姓名
+    - `avatarUrl`：头像 URL（当前为空字符串，占位用）
+    - `phone`：手机号
+    - `balance`：剩余课时数
+    - `lastLessonAt`：最近上课时间（ISO 字符串）
+  - 特别约定：
+    - 至少一条数据满足 `balance < 4`，便于在前端验证课时预警逻辑
+
+### 3.2 `src/views/teacher/StudentListView.vue`
+
+- **变量：`rawStudents`（ref<Array>）**
+  - 作用：存放从 `getStudentList()` 接口获取到的原始学生数据
+  - 使用方式：仅在本组件内部使用，所有展示列表都通过计算属性 `filteredStudents` 派生
+
+- **变量：`keyword`（ref<string>）**
+  - 作用：绑定到 `FilterBar` 的搜索输入（`v-model="keyword"`）
+  - 行为：在 `filteredStudents` 中用于对 `name` 字段做前端模糊匹配（忽略大小写）
+
+- **变量：`filters` / `activeFilterKey`**
+  - `filters`：`[{ key: 'all', label: '全部学生' }, { key: 'lowBalance', label: '仅看课时不足' }]`
+  - `activeFilterKey`：当前筛选 key，默认 `'all'`
+  - 作用：用于 `FilterBar` 的筛选按钮，点击时触发 `handleFilterChange` 更新 `activeFilterKey`
+
+- **计算属性：`filteredStudents`**
+  - 作用：基于 `rawStudents`、`keyword` 和 `activeFilterKey` 计算最终展示的学生列表
+  - 筛选逻辑：
+    1. 若 `keyword` 非空，则只保留 `stu.name.toLowerCase().includes(keyword.toLowerCase())` 的学生
+    2. 若 `activeFilterKey === 'lowBalance'`，则只保留 `balance < 4` 的学生
+
+- **函数：`handleFilterChange(key)`**
+  - 作用：响应 `FilterBar` 的 `change` 事件，更新当前筛选条件 `activeFilterKey`
+  - 使用方式：`<FilterBar @change="handleFilterChange" />`
+
+- **变量：`columns`**
+  - 类型：`Array<{ key, title, width? }>`
+  - 作用：定义 `DataTable` 显示的列：
+    - `name` → 姓名
+    - `phone` → 手机号
+    - `balance` → 剩余课时
+    - `lastLessonAt` → 最近上课
+    - `actions` → 操作（宽度 120px）
+
+- **函数：`formatDateTime(iso)`**
+  - 作用：将 ISO 时间字符串格式化为本地易读时间（`toLocaleString`）
+  - 在 `DataTable` 的 `cell-lastLessonAt` 插槽中调用
+
+- **插槽使用：DataTable cell 插槽**
+  - `cell-name`：只展示姓名文本（预留头像位）
+  - `cell-balance`：根据 `balance` 使用 `StatusTag` 选择绿色/红色标签
+    - `Number(value) < 4` → `type="danger"`（红色）+ “剩余 X 课时”
+    - 否则 → `type="success"`（绿色）
+  - `cell-lastLessonAt`：使用 `formatDateTime` 格式化最近上课时间
+  - `cell-actions`：渲染一个 `BaseButton variant="ghost"` 的“查看详情”按钮（当前仅占位）
+
+## 4) 我该怎么验证（一步一步）
+
+### 步骤 1：登录老师账号并进入学生花名册
+
+1. 在浏览器打开 `/login`
+2. 输入任意手机号和密码，选择“老师”角色后点击“登录”
+3. 进入 `/teacher/home` 后，点击首页中的“学生管理”卡片
+4. 预期：路由跳转到 `/teacher/students`，顶部 AppShell 标题为“学生花名册”
+
+### 步骤 2：检查表格数据与课时预警颜色
+
+1. 在 `/teacher/students` 页面：
+   - 应看到一个表格，包含多行学生数据
+   - 每行显示：姓名 / 手机号 / 剩余课时 / 最近上课 / 操作
+2. 找到 `balance < 4` 的那名学生：
+   - 该学生的“剩余课时”单元格应为 **红色标签**（`StatusTag type="danger"`）
+   - 其他课时较多的学生则应为 **绿色标签**（`StatusTag type="success"`）
+
+### 步骤 3：测试搜索过滤逻辑
+
+1. 在顶部 FilterBar 的搜索框中输入某个学生姓名的部分字符（如“王”或“三”）
+2. 预期：
+   - 表格只保留姓名中包含该关键字的学生
+   - 清空搜索框后，表格恢复到按筛选条件过滤后的完整列表
+
+### 步骤 4：测试“仅看课时不足”筛选
+
+1. 点击 FilterBar 中的“仅看课时不足”按钮
+2. 预期：
+   - 表格只显示剩余课时小于 4 的学生
+   - 所有显示行的“剩余课时”标签都为红色（danger）
+3. 再点击“全部学生”按钮
+   - 表格恢复显示所有学生
+
+### 步骤 5：验证加载与错误状态（可选）
+
+1. 在 `getStudentList` 中临时抛出错误（例如 `throw new Error('test')`）
+2. 刷新 `/teacher/students`：
+   - 应显示 EmptyState，标题为“加载失败”，描述为“学生列表加载失败，请稍后重试”
+3. 撤销修改恢复正常逻辑，再次刷新，表格应正常显示

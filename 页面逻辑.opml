@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="1.0">
+	<head>
+		<dateCreated>Thu Oct 27 2022 23:52:18 GMT+0800 (中国标准时间)</dateCreated>
+		<dateModified>Thu Oct 27 2022 23:52:18 GMT+0800 (中国标准时间)</dateModified>
+	</head>
+	<body>
+		<outline text="页面逻辑">
+			<outline text="登入页面">
+				<outline text="规则">
+					<outline text="手机号 + 密码">
+						<outline text="根据账号属性进入不同的页面">
+							<outline text="teacher页面"></outline>
+							<outline text="student页面"></outline>
+						</outline>
+					</outline>
+					<outline text="「忘记密码」">
+						<outline text=" 短信找回/重置密码页，短信只用于找回，不用于日常登录"></outline>
+					</outline>
+				</outline>
+			</outline>
+			<outline text="教师端web-h5">
+				<outline text="首页">
+					<outline text="布局：方块布局">
+						<outline text="课程以及进入直播间"></outline>
+						<outline text="备课"></outline>
+						<outline text="作业批改"></outline>
+						<outline text="学生预警">
+							<outline text="少于三次课的学生"></outline>
+						</outline>
+						<outline text="根据不同的套餐（这个不参与设计，只是我和他人的交易，在系统中全部体现为课时）">
+							<outline text="剩余学生使用次数5/人"></outline>
+							<outline text="订阅制度">
+								<outline text="按月">
+									<outline text="199">
+										<outline text="拉新人减少99元"></outline>
+									</outline>
+								</outline>
+								<outline text="按年">
+									<outline text="2388（原价）"></outline>
+									<outline text="活动">
+										<outline text="2100（打八八折）">
+											<outline text="175/月"></outline>
+										</outline>
+										<outline text="1910*2= 3820（打八折）">
+											<outline text="159/月"></outline>
+										</outline>
+										<outline text="1790*3 = 5370（打七五折）">
+											<outline text="149/月"></outline>
+										</outline>
+									</outline>
+								</outline>
+							</outline>
+						</outline>
+						<outline text="本月上课及续费率"></outline>
+					</outline>
+				</outline>
+				<outline text="学生管理">
+					<outline text="布局">
+						<outline text="方框布局"></outline>
+					</outline>
+					<outline text="添加学生">
+						<outline text="在学生管理界面的">
+							<outline text="姓名"></outline>
+							<outline text="年龄"></outline>
+							<outline text="性别"></outline>
+							<outline text="电话"></outline>
+							<outline text="所报课程"></outline>
+							<outline text="班级"></outline>
+							<outline text="所报课程数量和单价"></outline>
+							<outline text="时间安排">
+								<outline text="自动关联到教师的日程表中"></outline>
+							</outline>
+							<outline text="备注">
+								<outline text="注意事项，比如家长在意的点和学生的性格特点"></outline>
+							</outline>
+							<outline text="默认密码123456（系统自动设置）"></outline>
+						</outline>
+					</outline>
+					<outline text="查看学生">
+						<outline text="页面布局">
+							<outline text="默认是按照最近上课时间排序（全部），最顶部为筛选">
+								<outline text="倒序和顺序">
+									<outline text="本周需要上课的学生"></outline>
+									<outline text="课时少于3节的学生"></outline>
+									<outline text="性别"></outline>
+									<outline text="课程类型"></outline>
+									<outline text="姓名或手机号"></outline>
+									<outline text="班级"></outline>
+								</outline>
+							</outline>
+							<outline text="表单的形式">
+								<outline text="手机号">
+									<outline text="姓名">
+										<outline text="课程类型">
+											<outline text="班级">
+												<outline text="三个按钮（详情） （报名）（学习报告）（删除）"></outline>
+											</outline>
+										</outline>
+									</outline>
+								</outline>
+							</outline>
+						</outline>
+						<outline text="详情">
+							<outline text="个人信息">
+								<outline text="姓名"></outline>
+								<outline text="性别"></outline>
+								<outline text="年龄"></outline>
+								<outline text="电话"></outline>
+								<outline text="所报课程"></outline>
+								<outline text="备注">
+									<outline text="注意事项，比如家长在意的点和学生的性格特点"></outline>
+								</outline>
+							</outline>
+							<outline text="学习记录">
+								<outline text="每节课">
+									<outline text="课程名称"></outline>
+									<outline text="时间"></outline>
+									<outline text="准确率"></outline>
+									<outline text="获得的积分"></outline>
+									<outline text="作业完成情况"></outline>
+								</outline>
+								<outline text="整体">
+									<outline text="已经掌握的单词">
+										<outline text="可下载为pdf">
+											<outline text="英文-----【中文】"></outline>
+											<outline text="【中文】-----英文"></outline>
+										</outline>
+									</outline>
+									<outline text="需要复习的单词">
+										<outline text="本周需要复习的">
+											<outline text="可下载为pdf">
+												<outline text="英文-----【中文】"></outline>
+												<outline text="【中文】-----英文"></outline>
+											</outline>
+										</outline>
+										<outline text="所有的错题">
+											<outline text="可下载为pdf">
+												<outline text="英文-----【中文】"></outline>
+												<outline text="【中文】-----英文"></outline>
+											</outline>
+										</outline>
+									</outline>
+									<outline text="抗遗忘时间">
+										<outline text="可以打印出来上面是单词对应
+下面是抗遗忘的时间"></outline>
+									</outline>
+								</outline>
+							</outline>
+						</outline>
+						<outline text="报名">
+							<outline text="所报课程"></outline>
+							<outline text="班级"></outline>
+							<outline text="所报课程数量和单价"></outline>
+							<outline text="时间安排">
+								<outline text="自动关联到教师的日程表中"></outline>
+							</outline>
+							<outline text="备注">
+								<outline text="注意事项，比如家长在意的点和学生的性格特点"></outline>
+								<outline text="如果是已存在的学生，则自动获取上一次的备注"></outline>
+							</outline>
+						</outline>
+						<outline text="制作学习报告">
+							<outline text="姓名"></outline>
+							<outline text="单词的等级">
+								<outline text="单词数量"></outline>
+							</outline>
+							<outline text="已经上了课次"></outline>
+							<outline text="建议">
+								<outline text="自动生成"></outline>
+								<outline text="教师有修改的权限"></outline>
+							</outline>
+						</outline>
+						<outline text="删除学生"></outline>
+					</outline>
+					<outline text="提醒模块">
+						<outline text="课次少于3次的学生预警"></outline>
+						<outline text="可以自动发送道家长的微信中"></outline>
+					</outline>
+				</outline>
+				<outline text="课程">
+					<outline text="布局">
+						<outline text="方框布局"></outline>
+					</outline>
+					<outline text="开班级"></outline>
+					<outline text="排课">
+						<outline text="顶部有按钮">
+							<outline text="排课"></outline>
+							<outline text="筛选">
+								<outline text="学生"></outline>
+								<outline text="班级"></outline>
+								<outline text="全部"></outline>
+							</outline>
+							<outline text="展示形式切换">
+								<outline text="日历表"></outline>
+								<outline text="列表形式">
+									<outline text="学生姓名">
+										<outline text="时间">
+											<outline text="课程名称"></outline>
+										</outline>
+									</outline>
+								</outline>
+							</outline>
+						</outline>
+						<outline text="日历表">
+							<outline text="点击开始和结束确定范围">
+								<outline text="点击时自动的有限获取该时间附近的整数时间，例如00 -15 -30 - 45"></outline>
+							</outline>
+							<outline text="自动弹出排课弹窗">
+								<outline text="必选">
+									<outline text="学生选择">
+										<outline text="可搜索">
+											<outline text="姓名"></outline>
+											<outline text="班级"></outline>
+											<outline text="电话"></outline>
+										</outline>
+										<outline text="可添加多名"></outline>
+									</outline>
+									<outline text="时间">
+										<outline text="上课时间"></outline>
+										<outline text="持续时间"></outline>
+									</outline>
+									<outline text="是否循环"></outline>
+									<outline text="课程类型">
+										<outline text="课程名称"></outline>
+										<outline text="模式">
+											<outline text="体验课">
+												<outline text="橙色"></outline>
+											</outline>
+											<outline text="正式课">
+												<outline text="绿色"></outline>
+											</outline>
+										</outline>
+									</outline>
+								</outline>
+								<outline text="非必选">
+									<outline text="班级选择"></outline>
+								</outline>
+								<outline text="而是自动取占位置，可以自由的设置上课时间，自动的计算所有色方框的占比"></outline>
+							</outline>
+							<outline text="学生课程方框显示">
+								<outline text="学生名称"></outline>
+								<outline text="上课时间"></outline>
+							</outline>
+						</outline>
+					</outline>
+					<outline text="课程">
+						<outline text="单词">
+							<outline text="课程的选择">
+								<outline text="右上角筛选">
+									<outline text="筛选">
+										<outline text="最近"></outline>
+										<outline text="收藏"></outline>
+										<outline text="已解锁"></outline>
+										<outline text="全部"></outline>
+										<outline text="条件可以同时存在"></outline>
+									</outline>
+								</outline>
+								<outline text="左上角按钮">
+									<outline text="返回"></outline>
+								</outline>
+								<outline text="类别">
+									<outline text="收藏">
+										<outline text="每个课程右上角有可以点击的星星收藏"></outline>
+										<outline text="未解锁的为灰色"></outline>
+									</outline>
+									<outline text="小学"></outline>
+									<outline text="初中"></outline>
+									<outline text="高中"></outline>
+									<outline text="大学">
+										<outline text="专升本"></outline>
+										<outline text="四级"></outline>
+										<outline text="六级"></outline>
+										<outline text="专四"></outline>
+										<outline text="专八"></outline>
+										<outline text="考研"></outline>
+										<outline text="考博"></outline>
+									</outline>
+									<outline text="雅思"></outline>
+									<outline text="托福"></outline>
+								</outline>
+							</outline>
+							<outline text="自定义设置章节">
+								<outline text="在设置按钮中">
+									<outline text="可自由指定每个章节的单词格式">
+										<outline text="从数据库中自动获取"></outline>
+									</outline>
+									<outline text="可以统一设定为固定个数，最后剩余的为单独的一章节"></outline>
+									<outline text="也可也在这个基础上，再单独指定某几个章节为特殊的格式"></outline>
+									<outline text="要求：速度要快最多2秒，所以需要数据库中数据合理，查找和筛选合理"></outline>
+								</outline>
+								<outline text="解锁的课程，里面的所有章节都是解锁的"></outline>
+							</outline>
+							<outline text="模拟上课环节">
+								<outline text="课前剪纸盒">
+									<outline text="选择不认识的单词学习">
+										<outline text="每个学生在该节课中的对于每个单词都有一个状态，认识和不认识，不认识通过学习之后，也会变成认识状态"></outline>
+										<outline text="同时对于每个单词需要有一个做题状况的标准，第一次就答对了则为非错题，否则为错题"></outline>
+										<outline text="页面也需要标记状态，标准此时为选择单词的阶段，这个阶段的选择会影响后面页面的单词呈现，如果后期返回到这个页面，则该页面所有的单词也要发生变化">
+											<outline text="原来认识：变为了不认识，则后续需要重新学习
+原来不认识的：变为了认识，则后续不需要学习，但是如果又再次点会了不认识，则后续学习的结果不发生变化，保留当堂课学习的记录，不管多少次从不认识到认识再到不认识都是如此，"></outline>
+											<outline text="所以后续的单词需要做到一点：
+在本节课中所有单词的每个页面的状态都是需要存储下来的，所有发生更新，建议放在本地缓存中，随机发生调整变化，下课之后再写入数据库
+"></outline>
+											<outline text="对于老师备课阶段，则是老师自己的单词状态，不需要写入数据库中，在下课之后，只需要清除缓存中关于这节课的单词学习数据即可"></outline>
+											<outline text="如果是在正式上课阶段，则是属于对应学生的单词学习数据，在下课后写入该学生的数据库中，在下课之后，需要清除缓存中关于这节课的单词学习数据"></outline>
+											<outline text="同时所有单词的状态名称需要精确的年月日时以及课程和对象：
+例如：这个happy的单词状态
+那么就是20251217X1-23:unkown_worry
+删除的时候也需要精准删除，避免删除了一些通用的缓存信息，这个点需要格外的小心">
+												<outline text="场景 1：你返回去把 happy 从“不认识”改成“认识”
+
+最稳的存法：同一个记录只更新，不新增一堆 Key
+
+数据结构示例（按课次 + 页 保存）：
+
+{
+  &quot;lessonId&quot;: &quot;L20251217_001&quot;,
+  &quot;pageId&quot;: &quot;P03&quot;,
+  &quot;words&quot;: {
+    &quot;happy&quot;: {
+      &quot;known&quot;: true,
+      &quot;isWrong&quot;: false,
+      &quot;stage&quot;: &quot;learn&quot;,
+      &quot;updatedAt&quot;: 1734457200000
+    }
+  }
+}
+
+
+你改状态只要：
+
+找到 words.happy
+
+改 known
+
+更新时间 updatedAt"></outline>
+											</outline>
+											<outline text="同时最后分为：
+学习良好:课前认识
+学习良好：不认识-非错题
+需要回顾：不认识-错题
+但都是要加入抗遗忘的"></outline>
+										</outline>
+										<outline text="工具栏中">
+											<outline text="选择发音">
+												<outline text="英音"></outline>
+												<outline text="美音"></outline>
+											</outline>
+											<outline text="全选按钮"></outline>
+											<outline text="返回按钮"></outline>
+											<outline text="下一环节按钮">
+												<outline text="只有对所有单词进行了选择才会亮"></outline>
+												<outline text="或者是这个环节已经经历过了，我只是现在回来修改而已，也可以亮，所有在缓存中也需要展示每个页面是否已完成过，也就是从这个环节是否完成并且前往了下一个环节，如果已经完成了则从0到1，如果没有完成则是0，也就是当该页面状态值为1的时候，下一个环节按钮也会亮并生效"></outline>
+											</outline>
+										</outline>
+										<outline text="页面卡片形式展示">
+											<outline text="正面">
+												<outline text="正面是单词和音标"></outline>
+												<outline text="卡片按钮">
+													<outline text="右上角又发音的喇叭"></outline>
+													<outline text="认识"></outline>
+													<outline text="不认识"></outline>
+												</outline>
+											</outline>
+											<outline text="返回">
+												<outline text="中文"></outline>
+												<outline text="卡片按钮">
+													<outline text="右上角又发音的喇叭"></outline>
+													<outline text="上一个"></outline>
+													<outline text="下一个">
+														<outline text="当该卡片为该章节的最后一张卡片的时候，此时点下一个则变成开始学习按钮，进入到学习环节，"></outline>
+													</outline>
+												</outline>
+											</outline>
+											<outline text="点击可以反转"></outline>
+											<outline text="此时要又页面状态：记录现在是第几张单词卡片，且是正面还是反面"></outline>
+											<outline text="同时在缓存中需要又集合类似的数据结构：
+来分别存储认识和不认识的单词集合，方便后期展示"></outline>
+										</outline>
+									</outline>
+									<outline text="正式的学习中 ">
+										<outline text="按钮">
+											<outline text="在顶部为工具栏"></outline>
+											<outline text="发音">
+												<outline text="英音"></outline>
+												<outline text="美音"></outline>
+											</outline>
+											<outline text="批注模式">
+												<outline text="打开了批注模式才显示这些工具">
+													<outline text="激光笔"></outline>
+													<outline text="荧光笔"></outline>
+													<outline text="圆珠笔"></outline>
+													<outline text="橡皮">
+														<outline text="整个擦除"></outline>
+														<outline text="部分擦除"></outline>
+													</outline>
+													<outline text="胶带">
+														<outline text="可以遮挡一部分，点击就只留下外框，再次点击就再次遮挡。只能使用整个擦除的橡皮擦掉"></outline>
+														<outline text="做一个矩形 Tape 对象：
+初始状态（遮挡）：
+fill：半透明浅色（像胶带）
+stroke：边框颜色
+corner controls：允许拖动缩放（调整宽高）
+点击后（揭示）：
+fill 设为透明（或 opacity=0），只保留 stroke
+也可以再点一次恢复遮挡（做成 toggle）
+工具栏输入宽度：提供“胶带宽度/高度”滑条或输入框，实时改 rect 的 size"></outline>
+													</outline>
+													<outline text="形状">
+														<outline text="方形"></outline>
+														<outline text="圆形"></outline>
+														<outline text="直线"></outline>
+													</outline>
+													<outline text="清空"></outline>
+													<outline text="内容上叠加一层Canvas覆盖层 + Fabric.js ">
+														<outline text="每一页单独保留一份批注数据：Fabric的json文件"></outline>
+														<outline text="用这几个字段组合，保证不会串页、不会串课：
+courseId：课程/课次 ID
+pageId：课件页 ID（或页码 pageIndex）
+contentVersion：课件内容版本号（你说“课程内容变化了要清空”，靠它判断）
+teacherId（可选）：避免多老师账号混
+Key 示例：
+anno:{teacherId}:{courseId}:{contentVersion}:{pageId}"></outline>
+														<outline text="保存时机（你要的“自动/手动清空”都能覆盖）
+实时保存（建议）：每次“笔画结束 stroke:end”后，做一次防抖保存（比如 500ms 内只保存一次）
+翻页保存（必须）：离开当前页前保存一次
+优先用 IndexedDB（更稳、容量大、不会轻易爆 localStorage 限制）"></outline>
+														<outline text="“3小时后自动清除 / 内容变化清除 / 下课清除”
+把它做成一套“批注会话 Session”规则，而不是到处 if 判断。
+
+建议的批注会话元数据（Meta）
+每节课进入时记录：
+sessionStartAt：进入教室的时间
+ttlHours = 3：超时阈值
+courseId
+contentVersion
+ended：是否已下课（true/false）
+自动清除触发条件（你想要的都覆盖）
+内容变化清除（最重要）
+
+如果当前课件 contentVersion 和缓存里记录的不一致：
+→ 直接不加载旧批注（视为已失效），并可顺手清理旧 Key
+超时清除（3 小时）
+进入教室时检查：now - sessionStartAt &gt; 3h
+→ 提示“已超时，批注将清空”（或直接清空）
+下课清除
+点击“下课”：（按你现在说的）：默认清空
+ended=true 后清理本课所有 pageId 的批注 key"></outline>
+													</outline>
+													<outline text="需要保留上课过程中的标准痕迹，这些标准是否清除，则是根据我是否下课，当时间超过了3个小时则自动清除，或者点击了下课自动清除，或者现在课程对象发生了变化自动清除"></outline>
+												</outline>
+											</outline>
+											<outline text="推题">
+												<outline text="可以选择第几题，如果只有一道题目，则不提供选择，否则可以提供选择"></outline>
+												<outline text="题目的每道题目都要又自己的状态，表面是完成还是未完成，正确还是错误。"></outline>
+												<outline text="答对了可以增加2个积分"></outline>
+											</outline>
+											<outline text="计时">
+												<outline text="倒计时"></outline>
+												<outline text="正计时"></outline>
+											</outline>
+											<outline text="随机">
+												<outline text="骰子"></outline>
+												<outline text="学生名字"></outline>
+											</outline>
+										</outline>
+										<outline text="内容">
+											<outline text="单词"></outline>
+											<outline text="音标"></outline>
+											<outline text="中文"></outline>
+											<outline text="例句"></outline>
+											<outline text="短语"></outline>
+											<outline text="近义词"></outline>
+											<outline text="反义词"></outline>
+											<outline text="自然拼读"></outline>
+										</outline>
+									</outline>
+									<outline text="游戏环节">
+										<outline text="连连看"></outline>
+										<outline text="打地鼠"></outline>
+										<outline text="拼词"></outline>
+									</outline>
+									<outline text="最后下载一个学习反馈">
+										<outline text="本节课的所有单词，展示那些是那些掌握的比较好，那些还需复习，那些错题"></outline>
+									</outline>
+								</outline>
+								<outline text="布局">
+									<outline text="左边为展示的屏幕">
+										<outline text="左上角选择投屏浏览器的还是整个屏幕电脑的"></outline>
+										<outline text="同学发送的花和其他奖励，回在屏幕上从下往上输送，范围只在底部的三分之一"></outline>
+										<outline text="而弹幕则会在顶部的三分之一，从左往右发送"></outline>
+									</outline>
+									<outline text="右边为直播">
+										<outline text="第一个是老师的摄像头"></outline>
+										<outline text="下面为其他同学的摄像头，默认都是关闭的，只有图片占位，每个方框界面上都有，麦克风和摄像头的功能，点击打开摄像头，将会让学生摄像头持续120秒"></outline>
+										<outline text="下面为评论的区域，可以允许学生再次进行发送评论，且要求连续发送间隔必须为3秒。"></outline>
+										<outline text="还有举手功能，学生点击举手之后会将该学生的头像周围泛着黄光，同时按照举手顺序，排序头像框的顺序。"></outline>
+										<outline text="右键某个学生的视频框，可以选择送花，送烟花，大拇指">
+											<outline text="在屏幕上会展示表扬效果，可以看到他的名字加上花花或者发送的奖励"></outline>
+											<outline text="这些奖励可以自定义"></outline>
+										</outline>
+										<outline text="学生还可以送花，送烟花，弹幕，大拇指，哭脸">
+											<outline text="发弹幕需要靠积分，每次发弹幕都需要5个积分"></outline>
+											<outline text="其他的则需要1个积分"></outline>
+											<outline text="每个人除了弹幕以外都有一次免费的机会"></outline>
+										</outline>
+									</outline>
+								</outline>
+							</outline>
+						</outline>
+						<outline text="阅读">
+							<outline text="展示文章，然后推不同的题目"></outline>
+						</outline>
+						<outline text="语法">
+							<outline text="可以先展示语法知识，然后推不同的题目"></outline>
+						</outline>
+						<outline text="作文">
+							<outline text="先放50张白板"></outline>
+							<outline text="可以展示白板，然后推题"></outline>
+						</outline>
+					</outline>
+				</outline>
+				<outline text="题库">
+					<outline text="课程">
+						<outline text="单词">
+							<outline text="每个章节的每个单词对应一道题目"></outline>
+							<outline text="呈现方式：">
+								<outline text="首先先用卡片的形式展示这个章节的所有单词"></outline>
+								<outline text="点击单词之后，进入查看本单词的题目，也可以增加题目"></outline>
+								<outline text="可以选择隐藏默认的部分题目">
+									<outline text="根据选择显示对应id的题目"></outline>
+								</outline>
+								<outline text="这个就涉及一个问题，每道题目的id为">
+									<outline text="默认的则为课程名称+页码"></outline>
+									<outline text="老师题目：老师id+课程名称+页码 "></outline>
+								</outline>
+								<outline text="题目类型">
+									<outline text="单选"></outline>
+									<outline text="填空"></outline>
+									<outline text="描述"></outline>
+									<outline text="图片"></outline>
+									<outline text="语音"></outline>
+								</outline>
+							</outline>
+						</outline>
+						<outline text="阅读">
+							<outline text="每篇文章都有题目"></outline>
+							<outline text="题目类型为单选或填空"></outline>
+						</outline>
+						<outline text="语法">
+							<outline text="每个知识点都有题目"></outline>
+							<outline text="题目类型为单选，填空"></outline>
+						</outline>
+						<outline text="作文">
+							<outline text="每节课都有题目，类型丰富"></outline>
+						</outline>
+					</outline>
+					<outline text="类别">
+						<outline text="收藏">
+							<outline text="每个课程右上角有可以点击的星星收藏"></outline>
+							<outline text="未解锁的为灰色"></outline>
+						</outline>
+						<outline text="小学"></outline>
+						<outline text="初中"></outline>
+						<outline text="高中"></outline>
+						<outline text="大学">
+							<outline text="专升本"></outline>
+							<outline text="四级"></outline>
+							<outline text="六级"></outline>
+							<outline text="专四"></outline>
+							<outline text="专八"></outline>
+							<outline text="考研"></outline>
+							<outline text="考博"></outline>
+						</outline>
+						<outline text="雅思"></outline>
+						<outline text="托福"></outline>
+					</outline>
+					<outline text="这些章节是按照课程中老师的规划而分类的"></outline>
+					<outline text="每个章节都又默认的题库，但是老师也可也替换为自己的题库"></outline>
+				</outline>
+				<outline text="个人信息">
+					<outline text="证书"></outline>
+					<outline text="证件照"></outline>
+					<outline text="姓名"></outline>
+					<outline text="年龄"></outline>
+					<outline text="等级"></outline>
+					<outline text="上课记录"></outline>
+					<outline text="工资"></outline>
+				</outline>
+			</outline>
+			<outline text="学生端web-h5">
+				<outline text="上面">
+					<outline text="右侧为孩子的头像和名称">
+						<outline text="点击头像可以修改信息"></outline>
+						<outline text="名称和头像"></outline>
+					</outline>
+					<outline text="中间为搜索框">
+						<outline text="搜索已经学习的单词，点击之后则进入对应的课程，自动选择孩子目前已经上过的课程类型 ，然后找到对应的章节，以及对应的学习页面"></outline>
+					</outline>
+				</outline>
+				<outline text="下面">
+					<outline text="今天课程">
+						<outline text="时间"></outline>
+						<outline text="课程名称"></outline>
+						<outline text="进入教室按钮"></outline>
+					</outline>
+					<outline text="排行榜，所有学生中的排名"></outline>
+					<outline text="全部课程">
+						<outline text="点击进去和对应老师的划分一致，所以需要记录好对应老师的划分方式存入数据库中，只能点开自己已经上过的课，其他和老师一致，也能注释等"></outline>
+					</outline>
+					<outline text="今日复习">
+						<outline text="课后复习，课后可以重新看自己的错题"></outline>
+					</outline>
+					<outline text="水平分析">
+						<outline text="根据国际标准去制作报告"></outline>
+					</outline>
+					<outline text="本周计划">
+						<outline text="日程表不可修改的版本"></outline>
+					</outline>
+					<outline text="抗遗忘">
+						<outline text="界面有虚线作为痕迹，展示出路径规划明确"></outline>
+					</outline>
+					<outline text="错题集">
+						<outline text="按照课程章节来展示，方框上展示错题数量"></outline>
+						<outline text="这个错题是由上课答题而决定的，只有在错题集中答对了，才能改变他的状态"></outline>
+						<outline text="具体章节中有筛选，优先展示最近错的题目，且优先展示有错题的章节"></outline>
+						<outline text="同时可以根据时间排序，数量排序"></outline>
+						<outline text="可以筛选只看有错题的章节"></outline>
+					</outline>
+					<outline text="展示他的奖励">
+						<outline text="积分">
+							<outline text="可以解锁拼图，解密游戏"></outline>
+							<outline text="获得各种奖励的次数，比如直播间老师给的花和赞等等，首页只展示最多的，可以打开详情观看"></outline>
+						</outline>
+						<outline text="游戏的道具"></outline>
+					</outline>
+				</outline>
+			</outline>
+			<outline text="家长端微信小程序-h5">
+				<outline text="登入页面">
+					<outline text="微信登入"></outline>
+					<outline text="首先展示大logo"></outline>
+					<outline text="微信授权"></outline>
+				</outline>
+				<outline text="两个页面">
+					<outline text="学习情况">
+						<outline text="课时余额">
+							<outline text="剩余课时"></outline>
+							<outline text="本月已消耗"></outline>
+							<outline text="最近消耗时间"></outline>
+						</outline>
+						<outline text="上课提醒">
+							<outline text="日程表"></outline>
+						</outline>
+						<outline text="成长记录">
+							<outline text="可展示每节课的上课情况，类似抗遗忘的呈现方式"></outline>
+						</outline>
+					</outline>
+					<outline text="我的">
+						<outline text="孩子信息"></outline>
+						<outline text="对于孩子绑定或者解绑"></outline>
+						<outline text="一个木鱼，敲击一下给孩子一点鼓励"></outline>
+						<outline text="后者智慧加一"></outline>
+					</outline>
+				</outline>
+			</outline>
+			<outline text="注意事项">
+				<outline text="对于白板展示的部分需要模块化，这部分我需要同时同步到学生端的复习环节"></outline>
+				<outline text="需要注意每个环节的缓存以及通用信息要发开">
+					<outline text="那些是一次性，那些是固定的"></outline>
+					<outline text="以及每个元素都要又对应的标识符，来让系统可以方便的识别他们的状态，从而来准确的控制角色是否出现，如何变化，这点非常的重要"></outline>
+				</outline>
+			</outline>
+		</outline>
+	</body>
+</opml>

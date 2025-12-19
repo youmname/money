@@ -9,6 +9,10 @@
 /* 引入基础样式（base.css 主要是颜色变量、字体等） */
 @import './base.css';
 
+/* 引入全局响应式 tokens（断点 + 间距 + 圆角等设计规范）
+   说明：只在这里引入一次，其它文件通过 var(--xxx) 使用 */
+@import './responsive-tokens.css';
+
 /* -------------------------------------------
    #app 是 Vue 应用挂载的根容器（index.html 里 <div id="app"></div>）
    我们让它全屏铺满，而不是居中限制宽度

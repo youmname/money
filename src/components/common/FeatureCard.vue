@@ -1,70 +1,154 @@
-<script setup>
-// ===============================
-// FeatureCard：功能入口方块（可复用组件）
-// 用途：学生首页/老师首页的“方块模块入口”都用它
-// 好处：以后改样式只改这里一个文件
-// ===============================
-
-import { defineProps } from 'vue' // defineProps：定义组件接收的参数
-
-// 定义组件参数（父组件传进来的数据）
-const props = defineProps({
-  title: { type: String, required: true }, // 模块标题，例如“全部课程”
-  desc: { type: String, default: '' }, // 模块描述（可选）
-  iconText: { type: String, default: '📘' }, // 模块图标（先用emoji占位，后面可换svg）
-})
-</script>
-
+<!-- FeatureCard：功能入口方块组件
+  用途：老师端/学生端首页的入口方块统一用这个组件
+  Props：
+    - title: string（必填）主标题
+    - subtitle: string（可选）副标题
+    - icon: string（可选）左侧图标/emoji/文字
+    - active: boolean（可选）高亮/选中态，用于 hover/当前入口高亮
+  事件：
+    - click：用户点击整个卡片时触发，父组件用 @click 监听
+-->
 <template>
-  <!-- 整个卡片可点击：父组件用 @click 监听 -->
-  <div class="card">
-    <!-- 图标区域 -->
-    <div class="icon">{{ props.iconText }}</div>
+  <button
+    class="featureCard"
+    :class="{ 'featureCard--active': active }"
+    type="button"
+    @click="handleClick"
+    @keydown.enter.prevent="handleClick"
+    @keydown.space.prevent="handleClick"
+  >
+    <!-- 左侧图标（可选） -->
+    <div v-if="icon" class="featureCard__icon">
+      <span class="featureCard__iconText">
+        <slot name="icon">{{ icon }}</slot>
+      </span>
+    </div>
 
-    <!-- 标题区域 -->
-    <div class="title">{{ props.title }}</div>
-
-    <!-- 描述区域（有就显示，没有就不显示） -->
-    <div v-if="props.desc" class="desc">{{ props.desc }}</div>
-  </div>
+    <!-- 右侧文字内容 -->
+    <div class="featureCard__content">
+      <div class="featureCard__title">
+        <slot name="title">{{ title }}</slot>
+      </div>
+      <div v-if="subtitle || $slots.subtitle" class="featureCard__subtitle">
+        <slot name="subtitle">{{ subtitle }}</slot>
+      </div>
+    </div>
+  </button>
 </template>
 
+<script setup>
+// ==========================
+// FeatureCard：复用功能入口方块组件
+// ==========================
+
+const props = defineProps({
+  title: {
+    type: String,
+    required: true
+  },
+  subtitle: {
+    type: String,
+    default: ''
+  },
+  icon: {
+    type: String,
+    default: ''
+  },
+  active: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['click'])
+
+function handleClick(event) {
+  emit('click', event)
+}
+</script>
+
 <style scoped>
-/* 方块卡片：触控友好、圆角、微阴影 */
-.card {
-  border: 1px solid rgba(0, 0, 0, 0.08); /* 轻边框 */
-  border-radius: 14px; /* 圆角 */
-  padding: 14px; /* 内边距 */
-  background: rgba(255, 255, 255, 0.9); /* 背景 */
-  cursor: pointer; /* 鼠标手型 */
-  user-select: none; /* 防止误选中文字 */
-  transition: transform 0.12s ease, box-shadow 0.12s ease; /* 点击微动效 */
-  min-height: 96px; /* 保证卡片高度一致 */
+/* 引入设计令牌（CSS 变量） */
+@import '@/assets/base-tokens.css';
+
+/* 整体卡片：磨砂 + 圆角 + 阴影，大小和 ActionPanel 内 tile 视觉接近 */
+.featureCard {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: var(--base-spacing-md);
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(30, 64, 175, 0.10);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 14px 32px rgba(17, 45, 120, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+  transition: all 0.18s ease;
+  outline: none;
 }
 
-/* 鼠标悬停：轻微上浮（PC体验） */
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+/* hover/焦点态 */
+.featureCard:hover,
+.featureCard:focus-visible {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 18px 40px rgba(17, 45, 120, 0.14);
 }
 
-/* 图标 */
-.icon {
+/* 选中态（active） */
+.featureCard--active {
+  border-color: var(--base-color-primary);
+  box-shadow: 0 20px 50px rgba(37, 99, 235, 0.22);
+}
+
+/* 左侧图标容器（模仿 ActionPanel 中 tileIcon） */
+.featureCard__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(30, 64, 175, 0.10);
+  flex-shrink: 0;
+}
+
+.featureCard__iconText {
   font-size: 22px;
 }
 
-/* 标题 */
-.title {
-  font-size: 16px;
-  font-weight: 600;
+/* 右侧文字内容 */
+.featureCard__content {
+  display: grid;
+  gap: 4px;
+  align-items: flex-start;
 }
 
-/* 描述 */
-.desc {
+/* 主标题 */
+.featureCard__title {
+  font-size: 16px;
+  font-weight: 950;
+  color: #1f2a44;
+}
+
+/* 副标题 */
+.featureCard__subtitle {
   font-size: 12px;
-  opacity: 0.75;
+  color: rgba(31, 42, 68, 0.62);
+}
+
+/* 自适应：手机端减小一点高度间距 */
+@media (max-width: 600px) {
+  .featureCard {
+    padding: 14px;
+  }
+
+  .featureCard__title {
+    font-size: 15px;
+  }
 }
 </style>
