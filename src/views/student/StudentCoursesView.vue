@@ -7,13 +7,22 @@
 
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AppShell from '@/components/common/AppShell.vue'
 import FeatureCard from '@/components/common/FeatureCard.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import Loading from '@/components/base/Loading.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 import { getCourseLevels } from '@/api/student.js'
 
 const router = useRouter()
+
+// 返回上一页
+function handleBack() {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/student/home')
+  }
+}
 
 // 课程级别列表（本地可变：用于星标切换）
 const levels = reactive([])
@@ -51,12 +60,15 @@ function toggleStar(level, event) {
 </script>
 
 <template>
-  <!-- 全部课程页：作为功能页，保留返回 + 退出 -->
-  <AppShell title="全部课程" :show-back="true" :show-logout="true">
-    <div class="page">
-      <h1 class="title">全部课程</h1>
-      <p class="tip">按课程级别浏览，点击已解锁的级别进入章节列表。</p>
+  <!-- 全部课程页：去掉导航栏，只留左上角返回按钮 + 课程卡片列表 -->
+  <div class="courses-page">
+    <!-- 左上角返回按钮 -->
+    <div class="page-header">
+      <BaseButton variant="ghost" class="back-button" @click="handleBack">返回</BaseButton>
+    </div>
 
+    <!-- 主内容区：课程卡片列表 -->
+    <div class="page-content">
       <!-- 加载态 -->
       <div v-if="isLoading" class="stateWrapper">
         <Loading text="课程级别加载中..." />
@@ -109,24 +121,35 @@ function toggleStar(level, event) {
         </div>
       </div>
     </div>
-  </AppShell>
+  </div>
 </template>
 
 <style scoped>
-.page {
-  max-width: var(--layout-content-max-width);
+@import '@/assets/base-tokens.css';
+@import '@/assets/responsive-tokens.css';
+
+.courses-page {
+  min-height: 100vh;
+  background: #f3f5fb;
+  padding: var(--space-lg);
+}
+
+.page-header {
+  max-width: 980px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+}
+
+.back-button {
+  padding: 8px 16px;
+  font-size: var(--font-body-size);
+  font-weight: 500;
+}
+
+.page-content {
+  max-width: 980px;
   margin: 0 auto;
-}
-
-.title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.tip {
-  margin-bottom: var(--space-lg);
-  opacity: 0.7;
 }
 
 .stateWrapper {
@@ -138,8 +161,9 @@ function toggleStar(level, event) {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-lg);
+  /* iPad 一行 1 个，卡更高 */
+  grid-template-columns: 1fr;
+  gap: 22px;
 }
 
 .levelItem {
@@ -157,6 +181,11 @@ function toggleStar(level, event) {
   padding: 0;
   cursor: pointer;
   text-align: left;
+}
+
+.levelButton :deep(.featureCard) {
+  min-height: 140px;
+  padding: 18px;
 }
 
 .levelButton:disabled {
@@ -183,11 +212,15 @@ function toggleStar(level, event) {
 
 @media (max-width: 1023.98px) {
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr; /* iPad 也保持一行1卡 */
   }
 }
 
 @media (max-width: 767.98px) {
+  .courses-page {
+    padding: var(--space-md);
+  }
+
   .grid {
     grid-template-columns: 1fr;
   }

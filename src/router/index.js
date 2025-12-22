@@ -11,7 +11,7 @@ import NotFoundView from '@/views/NotFoundView.vue' // 404页
 
 import TeacherHomeView from '@/views/teacher/TeacherHomeView.vue' // 老师端首页
 import StudentListView from '@/views/teacher/StudentListView.vue' // 老师端 - 学生列表
-import TeacherScheduleView from '@/views/teacher/TeacherScheduleView.vue' // 老师端 - 排课日程
+import ScheduleView from '@/views/teacher/ScheduleView.vue' // 老师端 - 排课日历
 import TeacherBillingView from '@/views/teacher/TeacherBillingView.vue' // 老师端 - 服务费台账
 import StudentHomeView from '@/views/student/StudentHomeView.vue' // 学生端首页
 import ParentHomeView from '@/views/parent/ParentHomeView.vue' // 家长端首页（H5）
@@ -55,17 +55,28 @@ const router = createRouter({
       name: 'teacherStudents',
       component: StudentListView,
     },
-    // 老师端：排课日程
+    // 老师端：排课日历
     {
       path: '/teacher/schedule',
       name: 'teacherSchedule',
-      component: TeacherScheduleView,
+      component: ScheduleView,
     },
     // 老师端：服务费台账
     {
       path: '/teacher/billing',
       name: 'teacherBilling',
       component: TeacherBillingView,
+    },
+    // 老师端：教室
+    {
+      path: '/teacher/classroom/:lessonId',
+      name: 'teacherClassroom',
+      component: () => import('@/views/teacher/TeacherClassroomView.vue'),
+    },
+    {
+      path: '/teacher/classroom/:lessonId/summary',
+      name: 'teacherClassSummary',
+      component: () => import('@/views/teacher/TeacherClassSummaryView.vue'),
     },
 
     // 学生端首页
@@ -112,6 +123,12 @@ const router = createRouter({
       path: '/student/classroom/:lessonId',
       name: 'studentClassroom',
       component: () => import('@/views/student/StudentClassroomView.vue'),
+    },
+    // 学生端：课后反馈
+    {
+      path: '/student/classroom/:lessonId/summary',
+      name: 'studentClassSummary',
+      component: () => import('@/views/student/StudentClassSummaryView.vue'),
     },
     // 学生端：今日复习（占位）
     {

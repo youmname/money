@@ -1,284 +1,401 @@
 <script setup>
-// ===============================
-// 忘记密码页（P0 占位版）
-// 目标：
-// 1) 有"发送验证码"按钮（模拟短信发送）
-// 2) 有倒计时，避免重复点击
-// 3) 有提交按钮（模拟重置密码）
-// 后续接真实短信：只需要把 sendSmsCode() 换成调用后端接口即可
-// ===============================
+// 忘记密码页（P0）- 去顶栏，仅保留左上返回，支持确认密码/小眼睛/限流/成功跳转
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import BaseButton from '@/components/base/BaseButton.vue'
+import BaseInput from '@/components/base/BaseInput.vue'
 
-import { ref, onBeforeUnmount } from 'vue' // ref：响应式变量；onBeforeUnmount：页面销毁时清理定时器
-import { useRouter } from 'vue-router' // 路由：用于返回登录页
-import AppShell from '@/components/common/AppShell.vue' // 引入 AppShell 布局组件
-
-// 路由对象：用于跳转
 const router = useRouter()
 
-// 手机号：用户输入的手机号
 const phone = ref('')
-
-// 短信验证码：用户输入的验证码（后续由短信服务发送）
 const smsCode = ref('')
+const password = ref('')
+const confirmPassword = ref('')
 
-// 新密码：用户希望设置的新密码
-const newPassword = ref('')
-
-// 提示信息：用于给用户显示操作结果（成功/失败）
 const msg = ref('')
-
-// 错误信息：用于更明确提示哪里不对
 const errorText = ref('')
 
-// 是否正在发送验证码（用于防止重复点击）
 const isSending = ref(false)
-
-// 倒计时秒数（例如60秒）
-// 当 countdown > 0 时，按钮应禁用
 const countdown = ref(0)
+const submitState = ref('form') // form | waiting
 
-// 定时器ID：用于倒计时（要保存起来，离开页面时需要清理）
+const isPasswordVisible = ref(false)
+const isConfirmVisible = ref(false)
+
+const RATE_LIMIT_KEY = 'fp_submit_logs'
+const RATE_LIMIT_WINDOW = 60 * 1000
+const RATE_LIMIT_MAX = 3
+
 let timerId = null
+let submitTimer = null
 
-// ========== 工具函数：启动倒计时 ==========
-const startCountdown = (seconds) => {
-  countdown.value = seconds // 设置倒计时初始值
+const passwordBoxRef = ref(null)
+const confirmBoxRef = ref(null)
 
-  // 如果之前已经有定时器，先清掉，避免叠加
-  if (timerId) {
-    clearInterval(timerId)
-    timerId = null
+const phoneValid = computed(() => /^1\\d{10}$/.test(phone.value))
+const passwordValid = computed(() => /^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$/.test(password.value))
+const confirmMatched = computed(() => password.value && password.value === confirmPassword.value)
+
+const recentLogs = computed(() => {
+  try {
+    const raw = localStorage.getItem(RATE_LIMIT_KEY)
+    if (!raw) return []
+    const list = JSON.parse(raw)
+    const now = Date.now()
+    return Array.isArray(list) ? list.filter((t) => now - t < RATE_LIMIT_WINDOW) : []
+  } catch (e) {
+    console.error('parse rate limit logs fail', e)
+    return []
   }
+})
 
-  // 每1秒减1
+const isRateLimited = computed(() => recentLogs.value.length >= RATE_LIMIT_MAX)
+
+const canSubmit = computed(
+  () =>
+    phoneValid.value &&
+    smsCode.value.trim().length > 0 &&
+    passwordValid.value &&
+    confirmMatched.value &&
+    !isRateLimited.value &&
+    submitState.value === 'form'
+)
+
+function startCountdown(seconds) {
+  countdown.value = seconds
+  if (timerId) clearInterval(timerId)
   timerId = setInterval(() => {
-    countdown.value -= 1 // 倒计时减少
-
-    // 倒计时结束：清理定时器
+    countdown.value -= 1
     if (countdown.value <= 0) {
-      countdown.value = 0 // 保底不出现负数
-      clearInterval(timerId)
+      countdown.value = 0
+      if (timerId) clearInterval(timerId)
       timerId = null
     }
   }, 1000)
 }
 
-// ========== 发送验证码（MVP：先模拟） ==========
-const sendSmsCode = async () => {
-  // 每次操作先清空提示
+async function sendSmsCode() {
   msg.value = ''
   errorText.value = ''
-
-  // 1) 校验手机号是否填写
-  if (!phone.value) {
-    errorText.value = '请先输入手机号，再发送验证码'
+  if (!phoneValid.value) {
+    errorText.value = '请输入有效的 11 位手机号'
     return
   }
-
-  // 2) 如果倒计时还没结束，不允许再发
   if (countdown.value > 0) {
-    errorText.value = `请等待 ${countdown.value} 秒后再发送`
+    errorText.value = `请等待 ${countdown.value} 秒后再试`
     return
   }
-
-  // 3) 设置“正在发送”状态，按钮变不可点
   isSending.value = true
-
   try {
-    // ✅ MVP阶段：这里先不接真实短信，只做模拟
-    // 你后续接后端时，只需要把下面这段替换成：
-    // await apiAuthSendSmsCode(phone.value)
-    await new Promise((resolve) => setTimeout(resolve, 600)) // 模拟网络延迟0.6秒
-
-    // 给用户提示：验证码已发送（模拟）
-    msg.value = '验证码已发送（占位模拟）。后续接短信服务后会真正发送到手机。'
-
-    // 启动60秒倒计时
+    await new Promise((resolve) => setTimeout(resolve, 600))
+    msg.value = '验证码已发送（模拟）'
     startCountdown(60)
   } catch (e) {
-    // 捕获异常（例如网络错误）
-    errorText.value = '发送失败，请稍后重试'
+    errorText.value = '发送失败，请稍后再试'
   } finally {
-    // 无论成功失败，都要解除“正在发送”状态
     isSending.value = false
   }
 }
 
-// ========== 提交重置密码（MVP：先模拟） ==========
-const handleSubmit = async () => {
-  // 清空提示
-  msg.value = ''
-  errorText.value = ''
-
-  // 校验：三项必须填写
-  if (!phone.value || !smsCode.value || !newPassword.value) {
-    errorText.value = '请把手机号、验证码、新密码都填写完整'
-    return
-  }
-
-  // ✅ MVP阶段：不接后端，先模拟成功
-  // 后续接后端时，这里替换为：await apiAuthResetPassword(...)
-  msg.value = '提交成功（占位模拟）。后续接短信服务后将真正完成重置。'
+function recordSubmitLog() {
+  const logs = recentLogs.value
+  const next = [...logs, Date.now()]
+  localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(next))
 }
 
-// ========== 页面销毁时清理定时器（非常重要） ==========
-onBeforeUnmount(() => {
-  if (timerId) {
-    clearInterval(timerId) // 清除倒计时定时器，避免内存泄漏
-    timerId = null
+function handleRateLimitCheck() {
+  if (isRateLimited.value) {
+    errorText.value = '操作过于频繁，请稍后再试'
+    return false
   }
+  return true
+}
+
+function handleSubmit() {
+  msg.value = ''
+  errorText.value = ''
+  if (!canSubmit.value) {
+    if (!phoneValid.value) {
+      errorText.value = '请输入有效的手机号'
+    } else if (!passwordValid.value) {
+      errorText.value = '密码需至少8位，包含字母和数字'
+    } else if (!confirmMatched.value) {
+      errorText.value = '两次密码输入不一致'
+    } else if (isRateLimited.value) {
+      errorText.value = '操作过于频繁，请稍后再试'
+    } else {
+      errorText.value = '请完整填写信息'
+    }
+    return
+  }
+  if (!handleRateLimitCheck()) return
+  recordSubmitLog()
+  submitState.value = 'waiting'
+  msg.value = '重置成功，正在跳转登录...'
+  submitTimer = setTimeout(() => {
+    router.push('/login')
+  }, 1500)
+}
+
+function togglePassword() {
+  isPasswordVisible.value = !isPasswordVisible.value
+}
+
+function toggleConfirmPassword() {
+  isConfirmVisible.value = !isConfirmVisible.value
+}
+
+function handleBack() {
+  router.push('/login')
+}
+
+function handleGlobalClick(e) {
+  const target = e.target
+  const inPwd = passwordBoxRef.value?.contains(target)
+  const inConfirm = confirmBoxRef.value?.contains(target)
+  if (!inPwd && !inConfirm) {
+    isPasswordVisible.value = false
+    isConfirmVisible.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleGlobalClick)
+})
+
+onBeforeUnmount(() => {
+  if (timerId) clearInterval(timerId)
+  if (submitTimer) clearTimeout(submitTimer)
+  document.removeEventListener('click', handleGlobalClick)
 })
 </script>
 
 <template>
-  <AppShell title="忘记密码">
-    <div class="page">
-      <!-- 标题 -->
-      <h1 class="title">短信找回 / 重置密码</h1>
-
-      <div class="form">
-      <!-- 手机号 -->
-      <label class="label">手机号</label>
-      <input v-model="phone" class="input" placeholder="请输入手机号" />
-
-      <!-- 验证码 + 发送按钮（同一行） -->
-      <label class="label">短信验证码</label>
-
-      <div class="row">
-        <!-- 验证码输入框 -->
-        <input v-model="smsCode" class="input" placeholder="请输入验证码" />
-
-        <!-- 发送验证码按钮 -->
-        <button
-          class="btn-secondary"
-          :disabled="isSending || countdown > 0"
-          @click="sendSmsCode"
-        >
-          <!-- 倒计时显示 -->
-          <span v-if="countdown > 0">{{ countdown }}秒后重发</span>
-          <span v-else>发送验证码</span>
-        </button>
-      </div>
-
-      <!-- 新密码 -->
-      <label class="label">新密码</label>
-      <input v-model="newPassword" class="input" type="password" placeholder="请输入新密码" />
-
-      <!-- 错误提示 -->
-      <p v-if="errorText" class="error">{{ errorText }}</p>
-
-      <!-- 正常提示 -->
-      <p v-if="msg" class="msg">{{ msg }}</p>
-
-      <!-- 提交按钮 -->
-      <button class="btn" @click="handleSubmit">提交</button>
-
-      <!-- 返回登录 -->
-      <button class="link" @click="router.push('/login')">返回登录</button>
+  <div class="fp-page">
+    <div class="fp-back">
+      <BaseButton variant="ghost" @click="handleBack">← 返回登录</BaseButton>
     </div>
+
+    <div class="fp-card" :class="{ waiting: submitState === 'waiting' }">
+        <div class="fp-header">
+          <h1 class="fp-title">重置密码</h1>
+          <p class="fp-sub">请输入手机号、验证码和新密码。</p>
+          <p class="fp-rule">密码需至少 8 位，包含字母和数字。</p>
+        </div>
+
+        <div v-if="submitState === 'form'" class="fp-form">
+          <label class="fp-label">手机号</label>
+          <BaseInput
+            v-model="phone"
+            placeholder="请输入 11 位手机号"
+            :error="!phoneValid && phone ? '手机号格式不正确' : ''"
+          />
+
+          <label class="fp-label">短信验证码</label>
+          <div class="fp-row">
+            <BaseInput v-model="smsCode" placeholder="请输入验证码" />
+            <BaseButton
+              class="fp-sms-btn"
+              variant="secondary"
+              :disabled="isSending || countdown > 0"
+              @click="sendSmsCode"
+            >
+              <template v-if="countdown > 0">{{ countdown }}s</template>
+              <template v-else>发送验证码</template>
+            </BaseButton>
+          </div>
+
+          <label class="fp-label">新密码</label>
+          <div ref="passwordBoxRef" class="fp-input-eye">
+            <BaseInput
+              v-model="password"
+              :type="isPasswordVisible ? 'text' : 'password'"
+              placeholder="至少8位，字母+数字"
+              :error="password && !passwordValid ? '需字母+数字，至少8位' : ''"
+            />
+            <button class="eye-btn" type="button" @click.stop="togglePassword">
+              {{ isPasswordVisible ? '🙈' : '👁' }}
+            </button>
+          </div>
+
+          <label class="fp-label">确认新密码</label>
+          <div ref="confirmBoxRef" class="fp-input-eye">
+            <BaseInput
+              v-model="confirmPassword"
+              :type="isConfirmVisible ? 'text' : 'password'"
+              placeholder="再次输入新密码"
+              :error="confirmPassword && !confirmMatched ? '两次输入不一致' : ''"
+            />
+            <button class="eye-btn" type="button" @click.stop="toggleConfirmPassword">
+              {{ isConfirmVisible ? '🙈' : '👁' }}
+            </button>
+          </div>
+
+          <p v-if="errorText" class="fp-error">{{ errorText }}</p>
+          <p v-if="msg" class="fp-msg">{{ msg }}</p>
+
+          <BaseButton class="fp-submit" variant="primary" :disabled="!canSubmit" @click="handleSubmit">
+            确认重置
+          </BaseButton>
+        </div>
+
+        <div v-else class="fp-waiting">
+          <div class="fp-waiting-icon">✅</div>
+          <p class="fp-waiting-text">重置成功，正在跳转登录...</p>
+        </div>
     </div>
-  </AppShell>
+  </div>
 </template>
 
 <style scoped>
-/* 页面容器：全屏居中 */
-.page {
-  min-height: 100vh; /* 全屏高度 */
-  display: flex; /* flex布局 */
-  flex-direction: column; /* 垂直排列 */
-  justify-content: center; /* 垂直居中 */
-  align-items: center; /* 水平居中 */
-  padding: 24px; /* 外边距 */
-}
+@import '@/assets/base-tokens.css';
+@import '@/assets/responsive-tokens.css';
 
-/* 标题 */
-.title {
-  font-size: 22px;
-  margin-bottom: 14px;
-}
-
-/* 表单盒子 */
-.form {
-  width: min(520px, 100%); /* PC最多520px，手机全宽 */
+.fp-page {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* 表单元素间距 */
-  padding: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.1); /* 边框 */
-  border-radius: 12px; /* 圆角 */
-  background: rgba(255, 255, 255, 0.9);
+  align-items: center;
+  padding: var(--layout-page-padding-y) var(--layout-page-padding-x);
+  background: linear-gradient(135deg, #f0f4ff, #f8fbff);
 }
 
-/* 标签 */
-.label {
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-/* 输入框 */
-.input {
-  height: 44px; /* 触控友好 */
-  padding: 0 12px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  font-size: 14px;
+.fp-back {
   width: 100%;
+  max-width: 520px;
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-sm);
 }
 
-/* 验证码行：输入框 + 按钮 */
-.row {
-  display: grid; /* 用grid更稳 */
-  grid-template-columns: 1fr auto; /* 左边输入框自适应，右边按钮自适应 */
-  gap: 10px;
+.fp-card {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: var(--card-radius-lg);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.fp-header {
+  display: grid;
+  gap: 6px;
+}
+
+.fp-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.fp-sub {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.fp-rule {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(37, 99, 235, 0.9);
+  font-weight: 600;
+}
+
+.fp-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.fp-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.8);
+}
+
+.fp-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-sm);
   align-items: center;
 }
 
-/* 主按钮 */
-.btn {
-  height: 44px;
-  border: none;
-  border-radius: 10px;
-  background: #2d6cdf;
-  color: white;
-  cursor: pointer;
-  font-size: 15px;
+.fp-sms-btn {
+  min-width: 108px;
 }
 
-/* 次按钮：发送验证码 */
-.btn-secondary {
-  height: 44px;
-  padding: 0 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: white;
-  cursor: pointer;
-  white-space: nowrap; /* 防止文字换行 */
+.fp-input-eye {
+  position: relative;
 }
 
-/* 次按钮禁用态 */
-.btn-secondary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* 错误提示 */
-.error {
-  color: #c0392b;
-  font-size: 13px;
-}
-
-/* 正常提示 */
-.msg {
-  font-size: 13px;
-  opacity: 0.9;
-}
-
-/* 链接按钮 */
-.link {
-  height: 40px;
-  border: none;
+.eye-btn {
+  position: absolute;
+  top: 0;
+  right: 8px;
+  height: 100%;
   background: transparent;
+  border: none;
   cursor: pointer;
-  opacity: 0.8;
+  font-size: 16px;
+}
+
+.fp-error {
+  color: #dc2626;
+  font-size: 13px;
+  margin: 0;
+}
+
+.fp-msg {
+  color: #2563eb;
+  font-size: 13px;
+  margin: 0;
+}
+
+.fp-submit {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.fp-submit :deep(.baseButton__text) {
+  width: 100%;
+}
+
+.fp-waiting {
+  display: grid;
+  place-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg) 0;
+}
+
+.fp-waiting-icon {
+  font-size: 40px;
+}
+
+.fp-waiting-text {
+  margin: 0;
+  font-size: 16px;
+  color: rgba(15, 23, 42, 0.85);
+  font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+  .fp-card {
+    padding: var(--space-lg);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  }
+
+  .fp-row {
+    grid-template-columns: 1fr;
+  }
+
+  .fp-sms-btn {
+    width: 100%;
+  }
 }
 </style>

@@ -2,7 +2,7 @@
 <template>
   <GlassCard class="rankCard" variant="strong" padding="md">
     <!-- 排行榜标题栏：使用通用 SectionHeader -->
-    <SectionHeader title="排行榜">
+  <SectionHeader :title="title">
       <template #actions>
         <!-- 查看全部按钮：直接跳转到学生端排行榜全部页 -->
         <BaseButton
@@ -53,7 +53,8 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 // 定义组件接收的参数（父组件传进来的数据）
 const props = defineProps({
-  rankList: { type: Array, required: true } // 排行榜数组（只包含前一名/我/后一名，共3条）
+  rankList: { type: Array, required: true }, // 排行榜数组（只包含前一名/我/后一名，共3条）
+  title: { type: String, default: '排行榜' }
 })
 
 // 定义组件向外发送的事件（父组件用 @事件名 监听）

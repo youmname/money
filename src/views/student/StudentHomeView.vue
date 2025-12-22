@@ -5,52 +5,70 @@
   - 通过 __TEST_MODE__（在 api/student.js 中定义）控制 normal/empty/slow/fail，用于测试 Loading/Empty/Error
 -->
 <template>
-  <!-- 学生首页：不显示返回按钮，但保留退出按钮 -->
-  <AppShell :show-back="false" :show-logout="true">
-    <!-- 自定义顶部栏：使用 header slot -->
-    <template #header>
-      <TopBar
-        v-model:searchText="searchText"
-        :user="user"
-        @search="onSearch"
-        @go-profile="goProfile"
-      />
-    </template>
-
-    <!-- 页面内容：使用默认 slot -->
-    <!-- 页面最外层：负责整体背景与居中 -->
-    <div class="page">
-      <!-- 页面内容壳：控制最大宽度与左右留白（PC端居中） -->
-      <div class="shell">
-        <!-- 主体布局：左侧（今日课程+排名） + 右侧（6按钮+奖励） -->
-        <main class="layout">
-          <!-- 加载状态：显示 Loading 组件 -->
-          <div v-if="isLoading" class="loadingWrapper">
-            <Loading text="加载中..." />
-          </div>
-
-          <!-- 错误状态：显示错误 EmptyState -->
-          <div v-else-if="isError" class="loadingWrapper">
-            <EmptyState
-              icon="⚠"
-              title="数据加载失败"
-              :description="errorMessage"
-              class="emptyStateCard"
+  <!-- 学生首页：不使用 AppShell 顶栏，仅用内容区自定义 TopBar -->
+  <AppShell :show-back="false" :show-logout="false" title="" :full-bleed="true" :full-bleed-no-padding="true">
+    <div class="tablet-page">
+      <div class="tablet-topbar">
+        <div class="top-left"></div>
+        <div class="top-center">
+          <div class="search-bar">
+            <BaseInput
+              v-model="searchText"
+              placeholder="搜索课程 / 练习 / 老师"
+              prefix-icon="🔎"
+              clearable
+              @keyup.enter="onSearch"
             />
           </div>
+        </div>
+        <div class="top-right">
+          <button class="user-pill" type="button" @click="goProfile">
+            <div class="avatar">
+              <span v-if="!user.avatarUrl">{{ avatarText }}</span>
+              <img
+                v-else
+                :src="user.avatarUrl"
+                alt="头像"
+              />
+            </div>
+            <span class="user-name">{{ user.name || '学生' }}</span>
+          </button>
+          <BaseButton variant="ghost" class="logoutBtn" @click="handleLogout">退出</BaseButton>
+        </div>
+      </div>
 
-          <!-- 内容区域：数据加载完成后显示 -->
-          <template v-else>
-            <!-- 左侧区域 -->
-            <section class="left">
-              <!-- 左上：今日课程大卡片 -->
+      <div class="tablet-body">
+        <div class="main-row">
+          <!-- B 区：左侧竖向导航（3 张卡片垂直排列，无外层框） -->
+          <div class="side-column">
+            <div class="side-nav-inner">
+              <FeatureCard
+                v-for="item in leftNavList"
+                :key="item.key"
+                class="nav-card"
+                :title="item.title"
+                :subtitle="item.subtitle"
+                :icon="item.icon"
+                @click="handleAction(item.key)"
+              />
+            </div>
+          </div>
+
+          <!-- F 区：今日课程主区域 -->
+          <section class="center-pane">
+            <div v-if="isLoading" class="loadingWrapper">
+              <Loading text="加载中..." />
+            </div>
+            <div v-else-if="isError" class="loadingWrapper">
+              <EmptyState icon="⚠" title="数据加载失败" :description="errorMessage" />
+            </div>
+            <div v-else class="lesson-wrap">
               <TodayLessonCard
                 v-if="!isTodayLessonEmpty"
                 :lesson="todayLesson"
                 :bg-url="bgToday"
                 @enter-classroom="goClassroom"
               />
-              <!-- 今日课程为空：显示 EmptyState -->
               <EmptyState
                 v-else
                 icon="📚"
@@ -58,89 +76,87 @@
                 description="今天没有安排课程，请查看其他日期。"
                 class="emptyStateCard"
               />
+            </div>
+          </section>
 
-              <!-- 左下：排名卡（只显示前一名/我/后一名） -->
-              <RankCard
-                v-if="!isRankListEmpty"
-                :rank-list="rankThree"
-                @view-all="goLeaderboard"
+        <!-- C 区：右侧竖向导航（3 张卡片垂直排列，无外层框，与 B 区对称） -->
+        <section class="right-pane">
+          <div class="side-column">
+            <div class="side-nav-inner">
+              <FeatureCard
+                v-for="item in featureList"
+                :key="item.key"
+                class="feature-card"
+                :title="item.title"
+                :subtitle="item.subtitle"
+                :icon="item.icon"
+                @click="handleAction(item.key)"
               />
-              <!-- 排行榜为空：显示 EmptyState -->
-              <EmptyState
-                v-else
-                icon="🏆"
-                title="暂无排行榜数据"
-                description="还没有排行榜数据，快去学习吧！"
-                class="emptyStateCard"
-              />
-            </section>
+            </div>
+          </div>
+        </section>
+        </div>
 
-            <!-- 右侧区域 -->
-            <section class="right">
-              <!-- 右上：6个按钮容器（2列3行） -->
-              <ActionPanel :bg-url="bgPanel" @action="handleAction" />
+        <div class="bottom-row">
+          <section class="bottom-card">
+            <template v-if="rankCards.length">
+              <RankCard :rank-list="rankCards[0]" title="排行" />
+            </template>
+            <EmptyState
+              v-else
+              icon="🏆"
+              title="暂无排行榜数据"
+              description="完成学习任务即可解锁排名。"
+              class="emptyStateCard"
+            />
+          </section>
 
-              <!-- 右下：奖励卡（只显示图标+数量） -->
-              <RewardCard
-                v-if="!isRewardListEmpty"
-                :reward-list="rewardItems"
-                :bg-url="bgReward"
-              />
-              <!-- 奖励为空：显示 EmptyState -->
-              <EmptyState
-                v-else
-                icon="🎁"
-                title="暂无奖励"
-                description="完成学习任务即可获得奖励。"
-                class="emptyStateCard"
-              />
-            </section>
-          </template>
-        </main>
+          <section class="bottom-card">
+            <RewardCard
+              v-if="rewardItems.length"
+              :reward-list="rewardItems"
+              :bg-url="bgReward"
+            />
+            <EmptyState
+              v-else
+              icon="🎁"
+              title="暂无奖励"
+              description="完成学习任务即可获得奖励。"
+              class="emptyStateCard"
+            />
+          </section>
+        </div>
       </div>
     </div>
   </AppShell>
 </template>
 
 <script setup>
-// ==========================
-// 逻辑层：数据获取 + 事件处理 + 布局拼装
-// ==========================
-
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-// 引入 AppShell 布局组件
 import AppShell from '@/components/common/AppShell.vue'
-
-// 引入子组件
-import TopBar from '@/components/common/TopBar.vue'
 import TodayLessonCard from '@/components/student/TodayLessonCard.vue'
+import GlassCard from '@/components/common/GlassCard.vue'
 import RankCard from '@/components/student/RankCard.vue'
-import ActionPanel from '@/components/student/ActionPanel.vue'
 import RewardCard from '@/components/student/RewardCard.vue'
-
-// 引入基础组件（用于加载和空态）
+import FeatureCard from '@/components/common/FeatureCard.vue'
 import Loading from '@/components/base/Loading.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
-
-// 引入 API 调用：当前内部是 mock，未来会改成真实接口，但本页面调用方式不变
+import BaseInput from '@/components/base/BaseInput.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 import { getTodayLesson, getRankList, getRewardList, getUserInfo } from '@/api/student.js'
+import bgToday from '@/assets/student-bg/bg_today.png'
+import bgReward from '@/assets/student-bg/bg_reward.png'
 
 const router = useRouter()
 
-// 搜索框的输入内容（用户打字会写进这个变量）
-// 说明：这是 UI 状态，不是“业务数据”，可以写在页面里
 const searchText = ref('')
-
-// 用户信息（从 API 获取）
 const user = reactive({
   name: '',
   points: 0,
   avatarUrl: ''
 })
 
-// 今日课程数据（从 API 获取；这里是响应式对象的“形状”，不是 mock 数据）
 const todayLesson = reactive({
   time: '--:--',
   title: '加载中...',
@@ -149,24 +165,34 @@ const todayLesson = reactive({
   lessonId: ''
 })
 
-// 排行榜列表
 const rankThree = ref([])
+const rewardItems = ref([]) // 保留数据，后续可在其他模块使用
 
-// 奖励数据
-const rewardItems = ref([])
-
-// 加载/错误状态
 const isLoading = ref(true)
 const isError = ref(false)
 const errorMessage = ref('')
 
-// 页面挂载后：统一从 api/student.js 获取数据
+const avatarText = computed(() => user.name?.[0] || '学')
+
+// B 区：左侧竖向导航项
+const leftNavList = [
+  { key: 'allCourses', title: '全部课程', subtitle: '查看所有课程', icon: '📚' },
+  { key: 'todayReview', title: '今日复习', subtitle: '今天要复习的内容', icon: '🔁' },
+  { key: 'mistakes', title: '错题集', subtitle: '集中攻克错题', icon: '❗' }
+]
+
+// C 区：右侧功能入口（垂直三卡，与左侧对称；不再包含奖励/排行）
+const featureList = [
+  { key: 'levelAnalysis', title: '水平分析', subtitle: '掌握度概览', icon: '📊' },
+  { key: 'antiForget', title: '抗遗忘', subtitle: '曲线复习', icon: '🧠' },
+  { key: 'weeklyPlan', title: '本周计划', subtitle: '一周安排', icon: '🗓' }
+]
+
 onMounted(async () => {
   isLoading.value = true
   isError.value = false
   errorMessage.value = ''
   try {
-    // 并行加载所有数据（提升性能）
     const [lessonData, rankData, rewardData, userData] = await Promise.all([
       getTodayLesson(),
       getRankList(),
@@ -174,7 +200,6 @@ onMounted(async () => {
       getUserInfo()
     ])
 
-    // 写入今日课程数据
     if (lessonData) {
       todayLesson.time = lessonData.time
       todayLesson.title = lessonData.title
@@ -183,13 +208,9 @@ onMounted(async () => {
       todayLesson.lessonId = lessonData.lessonId
     }
 
-    // 写入排行榜数据
     rankThree.value = Array.isArray(rankData) ? rankData : []
-
-    // 写入奖励数据
     rewardItems.value = Array.isArray(rewardData) ? rewardData : []
 
-    // 写入用户信息
     if (userData) {
       user.name = userData.name
       user.points = userData.points
@@ -204,55 +225,33 @@ onMounted(async () => {
   }
 })
 
-// 计算属性：是否为空，用于控制 EmptyState
-const isTodayLessonEmpty = computed(() => {
-  return !todayLesson.lessonId || todayLesson.time === '--:--'
+const isTodayLessonEmpty = computed(() => !todayLesson.lessonId || todayLesson.time === '--:--')
+const rankCards = computed(() => {
+  if (!rankThree.value.length) return []
+  return [rankThree.value]
 })
 
-const isRankListEmpty = computed(() => {
-  return rankThree.value.length === 0
-})
+function handleLogout() {
+  localStorage.removeItem('auth_token')
+  localStorage.removeItem('auth_role')
+  router.push('/login')
+}
 
-const isRewardListEmpty = computed(() => {
-  return rewardItems.value.length === 0
-})
-
-// ==========================
-// 背景图路径（UI 常量，允许写在页面里）
-// ==========================
-
-const bgToday = new URL('@/assets/student-bg/bg_today.png', import.meta.url).href
-const bgPanel = new URL('@/assets/student-bg/bg_panel.png', import.meta.url).href
-const bgReward = new URL('@/assets/student-bg/bg_reward.png', import.meta.url).href
-
-// ==========================
-// 事件处理函数
-// ==========================
-
-// 点击搜索：跳转到搜索结果页
 function onSearch() {
   const keyword = searchText.value.trim()
   if (!keyword) return
   router.push({ path: '/student/search', query: { q: keyword } })
 }
 
-// 点击用户条：进入个人中心
 function goProfile() {
   router.push('/student/profile')
 }
 
-// 点击进入教室：进入教室页面（把 lessonId 带过去）
 function goClassroom() {
   if (!todayLesson.lessonId) return
   router.push(`/student/classroom/${todayLesson.lessonId}`)
 }
 
-// 查看排行榜：跳转排行榜页面
-function goLeaderboard() {
-  router.push('/student/rank')
-}
-
-// 处理功能按钮点击：根据按钮类型跳转对应页面
 function handleAction(actionType) {
   const routeMap = {
     allCourses: '/student/courses',
@@ -260,9 +259,10 @@ function handleAction(actionType) {
     todayReview: '/student/review/today',
     antiForget: '/student/anti-forget',
     mistakes: '/student/mistakes',
-    weeklyPlan: '/student/plan/week'
+    weeklyPlan: '/student/plan/week',
+    rewards: '/student/rewards',
+    rank: '/student/rank'
   }
-
   const route = routeMap[actionType]
   if (route) {
     router.push(route)
@@ -271,101 +271,346 @@ function handleAction(actionType) {
 </script>
 
 <style scoped>
-/* =========================
-   整体：背景 + 居中
-   ========================= */
+@import '@/assets/base-tokens.css';
+@import '@/assets/responsive-tokens.css';
 
-/* 页面背景：与 AppShell 的全局底色保持一致，避免“上下一块”割裂感 */
-.page {
-  /* 高度由 AppShell 控制，这里不再强制 100vh，保证不同页面在同一张“纸”上 */
-  background: #f3f5fb;
-}
-
-/* 轻微内容块：仅用于在宽屏下把内容收在视觉中心，不做强卡片分区 */
-.shell {
-  max-width: var(--layout-content-max-width);
+.tablet-page {
+  --layout-content-max-width: 100%;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: #eef2fb;
+  /* iPad 横屏：宽度策略，消灭明显大空白边，让页面更"满" */
+  width: 100%;
+  max-width: min(1320px, calc(100vw - 40px));
   margin: 0 auto;
+  padding: 20px 0; /* 左右不要 padding，避免 bottom-row 宽度不齐 */
+  gap: 0; /* 避免顶部看起来像"断开" */
 }
 
-
-/* =========================
-   主体：左右布局（按你图）
-   ========================= */
-
-.layout {
+.tablet-topbar {
   display: grid;
-  grid-template-columns: 1fr 1.05fr;
-  /* 模块间距拉开一些，让两列更舒展 */
-  column-gap: calc(var(--space-lg) * 1.4);
-  row-gap: calc(var(--space-lg) * 1.2);
-  align-items: start;
+  /* iPad 横屏：左退出 / 中搜索 / 右头像姓名 */
+  grid-template-columns: 200px 1fr 240px;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0; /* A区删除：完全移除顶部空余 */
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border-radius: 0;
 }
 
-/* 左侧列：上大卡 + 下排名 */
-.left {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  gap: calc(var(--space-lg) * 1.1);
-}
-
-/* 右侧列：上按钮面板 + 下奖励 */
-.right {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  gap: calc(var(--space-lg) * 1.1);
-}
-
-/* =========================
-   自适应：iPad（768 - 1023）
-   - 要求：上下堆叠，不挤压、不重叠
-   ========================= */
-
-@media (min-width: 768px) and (max-width: 1023.98px) {
-  .layout {
-    grid-template-columns: 1fr;
-    /* iPad 上改为单列，但间距保持自然，不营造“上下两大块卡片”的感觉 */
-    row-gap: calc(var(--space-lg) * 1.2);
-    column-gap: 0;
-  }
-}
-
-/* 加载状态包装器 */
-.loadingWrapper {
-  grid-column: 1 / -1;
+.top-left {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 400px;
 }
 
-/* 空态卡片样式（用于替换原有卡片） */
-.emptyStateCard {
-  border-radius: var(--card-radius-lg);
-  /* 空态与普通卡片视觉一致：不透明白 + 轻阴影 */
-  background: #ffffff;
+.top-center {
+  display: flex;
+  justify-content: center;
+}
+
+.search-bar {
+  width: 90%;
+  max-width: 640px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.16);
+  display: flex;
+  align-items: center;
+}
+
+.search-bar :deep(.baseInput__wrapper) {
   border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.search-bar :deep(.baseInput__input) {
+  font-size: 15px;
+}
+
+.top-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-right: 2%;
+}
+
+.avatar {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.85);
+}
+
+.tablet-body {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 10px;          /* 让上下间距更小 */
+  padding: 10px 0 0;  /* 让上下间距更小 */
+  width: 100%;
+  margin: 0;
+}
+
+
+.main-row {
+  display: grid;
+  /* 关键：左右更饱满，且严格对称 */
+  grid-template-columns: 320px 1fr 320px;
+  column-gap: 24px;
+  align-items: stretch;
+  width: 100%;
+  margin: 0;
+}
+
+.bottom-row {
+  display: grid;
+  /* 底部两块等宽平分，总宽度严格对齐上方三列范围（从左列起点到右列终点） */
+  grid-template-columns: 1fr 1fr;
+  gap: 24px; /* 与 main-row 视觉一致 */
+  width: 100%;
+  margin: 0;
+  margin-top: 10px;
+}
+
+.side-column {
+  height: 100%;
+  display: flex;
+}
+
+.side-nav-inner {
+  display: grid;
+  grid-template-rows: 0.8fr 1fr 1fr; /* 第一张卡更矮（缩约1/5） */
+  gap: 16px; /* 左右列间距一致，不得一边挤一边松 */
+  width: 100%;
+  height: 100%;
+}
+
+.nav-card,
+.feature-card {
+  width: 100%;
+  height: 100%;
+  min-height: 132px; /* 统一卡片高度，小朋友视角要均衡 */
+}
+
+/* 中间主舞台：顶部必须与左右列齐平（去掉 padding 造成的下移） */
+.center-pane {
+  padding: 0;                /* 关键：红框起始位置齐平 */
+  display: flex;
+  align-items: stretch;      /* 关键：让中间可撑满高度 */
+  justify-content: center;
+}
+
+/* 中间内容必须撑满 main-row 高度，而不是"居中一坨" */
+.lesson-wrap {
+  width: 100%;
+  display: flex;
+  align-items: stretch;      /* 关键：撑高 */
+  justify-content: center;   /* 居中保持 */
+}
+
+/* 让 TodayLessonCard 自己撑满高度（从顶部对齐到底部） */
+.lesson-wrap :deep(.todayLessonCard) {
+  width: 100%;
+  max-width: 720px;
+  height: 100%;              /* 关键：与左右列等高 */
+}
+
+
+.right-pane {
+  display: block;
+}
+
+.feature-shell {
+  height: 100%;
+}
+
+.bottom-card {
+  display: flex;
+  align-items: stretch;
+  min-height: 240px; /* 提升底部卡片最小高度 */
+  width: 100%; /* 强制 bottom-card 撑满列宽 */
+}
+
+/* 强制 bottom-card 子组件撑满列宽，修复"列内紫色空白" */
+.bottom-card > * {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
+/* 兜底：确保子组件内部卡片也撑满 */
+.bottom-card :deep(.rankCard),
+.bottom-card :deep(.rewardCard),
+.bottom-card :deep(.emptyStateCard) {
+  width: 100%;
+}
+
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 320px;
+}
+
+.emptyStateCard {
+  background: #ffffff;
+  border-radius: var(--card-radius-lg);
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-  height: 210px;
+  min-height: 210px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 手机：更小留白 + 单列布局，保证无横向滚动、按钮可点 */
-@media (max-width: 767.98px) {
-  .page {
-    /* 具体左右留白由 AppShell 的 contentInner + 全局 tokens 控制，这里不额外增加 */
-    min-height: 100vh;
+/* iPad 横屏：768px ~ 1366px */
+@media (min-width: 768px) and (max-width: 1366px) {
+  .tablet-page {
+    max-width: min(1320px, calc(100vw - 40px));
+    padding: 20px 0; /* 只允许改上下 padding，左右必须保持 0 */
   }
 
-  .layout {
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
+  .main-row {
+    grid-template-columns: 320px 1fr 320px;
+    column-gap: 24px;
   }
 
-  .left,
-  .right {
-    gap: var(--space-md);
+  .bottom-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px; /* 与 main-row 视觉一致 */
   }
 }
+
+/* iPad 竖屏/窄屏：<=1024px */
+@media (max-width: 1024px) and (min-width: 768px) {
+  .tablet-page {
+    padding: 16px 0; /* 只允许改上下 padding，左右必须保持 0 */
+  }
+
+  .main-row {
+    grid-template-columns: 260px 1fr 260px; /* 竖屏/窄屏列宽调整 */
+    column-gap: 20px;
+  }
+
+  .bottom-row {
+    gap: 20px; /* 与 main-row 视觉一致 */
+  }
+}
+
+@media (max-width: 767.98px) {
+  .tablet-page {
+    grid-template-rows: auto auto;
+    max-width: 100%;
+    padding: var(--space-md);
+  }
+
+  .tablet-body {
+    grid-template-rows: auto auto;
+  }
+
+  .main-row {
+    grid-template-columns: 1fr; /* 只允许手机端单列 */
+  }
+
+  .bottom-row {
+    grid-template-columns: 1fr; /* 只允许手机端底部单列 */
+  }
+
+  .center-pane {
+    order: -1;
+  }
+
+  .right-pane {
+    grid-template-rows: auto auto;
+  }
+
+  /* 保留你原来的 mobile topbar 规则（合并进来，防止重复） */
+  .tablet-topbar {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-sm);
+    padding: var(--space-md);
+    height: auto;
+  }
+
+  .tablet-body {
+    gap: var(--space-sm);
+  }
+
+  .side-nav {
+    grid-template-rows: repeat(3, 48px);
+  }
+}
+
+/* ✅ 学生首页：左/右列入口卡（button.featureCard.nav-card）让内部内容撑满 320px，消除大块空白 */
+:deep(button.featureCard.nav-card) {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;             /* 根据你现有风格可微调 */
+}
+
+/* 让按钮内部"文字区"占满剩余宽度（避免只挤在左边） */
+:deep(button.featureCard.nav-card .featureCard__content),
+:deep(button.featureCard.nav-card .text),
+:deep(button.featureCard.nav-card .texts),
+:deep(button.featureCard.nav-card .content) {
+  flex: 1;
+  min-width: 0; /* 防止溢出导致无法撑开 */
+}
+
+/* 如果你的结构是 icon + 文本，确保 icon 后面的块能撑开 */
+:deep(button.featureCard.nav-card > :nth-child(2)) {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 右侧加一个淡色提示符 ›，视觉上填满空白但不改模板 */
+:deep(button.featureCard.nav-card)::after {
+  /*content: "›";*/
+  font-size: 26px;
+  line-height: 1;
+  opacity: 0.25;
+  margin-left: 14px;
+  flex-shrink: 0;
+}
+
 </style>

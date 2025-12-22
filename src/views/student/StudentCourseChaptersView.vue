@@ -7,7 +7,6 @@
 
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AppShell from '@/components/common/AppShell.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import Loading from '@/components/base/Loading.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
@@ -61,20 +60,26 @@ function handleClickChapter(chapter) {
   })
 }
 
-// 返回课程级别列表
-function goBackToLevels() {
-  router.push('/student/courses')
+// 返回课程级别列表（左上角返回按钮）
+function handleBack() {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/student/courses')
+  }
 }
 </script>
 
 <template>
-  <!-- 章节列表页：不需要返回按钮，由 AppShell 内置返回控制；保留退出 -->
-  <AppShell :title="pageTitle" :show-back="true" :show-logout="true">
-    <div class="page">
-      <!-- 顶部返回课程级别的小按钮（辅助手段） -->
-      <div class="pageHeader">
-        <BaseButton variant="ghost" @click="goBackToLevels">← 返回课程级别</BaseButton>
-      </div>
+  <!-- 章节列表页：去掉顶部导航，只留左上角返回按钮 + 章节列表 -->
+  <div class="chapters-page">
+    <!-- 左上角返回按钮 -->
+    <div class="page-header">
+      <BaseButton variant="ghost" class="back-button" @click="handleBack">返回</BaseButton>
+    </div>
+
+    <!-- 主内容区：章节列表 -->
+    <div class="page-content">
 
       <!-- 加载状态 -->
       <div v-if="isLoading" class="stateWrapper">
@@ -124,17 +129,35 @@ function goBackToLevels() {
         </div>
       </div>
     </div>
-  </AppShell>
+  </div>
 </template>
 
 <style scoped>
-.page {
-  max-width: var(--layout-content-max-width);
-  margin: 0 auto;
+@import '@/assets/base-tokens.css';
+@import '@/assets/responsive-tokens.css';
+
+.chapters-page {
+  min-height: 100vh;
+  background: #f3f5fb;
+  padding: var(--space-lg);
 }
 
-.pageHeader {
-  margin-bottom: var(--space-lg);
+.page-header {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+}
+
+.back-button {
+  padding: 8px 16px;
+  font-size: var(--font-body-size);
+  font-weight: 500;
+}
+
+.page-content {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .stateWrapper {

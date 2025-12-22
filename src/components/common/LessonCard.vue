@@ -94,7 +94,7 @@ const emit = defineEmits(['primary'])
   position: relative;
   border-radius: 26px;
   overflow: hidden;
-  height: 360px;
+  height: var(--lesson-card-h, 360px);
   box-shadow: 0 18px 40px rgba(30, 60, 120, 0.14);
   background: linear-gradient(135deg, #e0edff, #f6fbff); /* 无背景图时的兜底底色 */
 }

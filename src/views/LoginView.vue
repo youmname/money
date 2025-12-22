@@ -66,8 +66,8 @@ const handleLogin = () => {
 </script>
 
 <template>
-  <!-- 登录页：不需要显示返回和退出按钮 -->
-  <AppShell title="登录" :show-back="false" :show-logout="false">
+  <!-- 登录页：不显示 header -->
+  <AppShell title="" :show-back="false" :show-logout="false">
     <div class="page">
       <!-- 页面标题 -->
       <h1 class="title">登录</h1>

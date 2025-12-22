@@ -2,7 +2,7 @@
 <template>
   <div class="appShell">
     <!-- 顶部栏区域：支持中间区域自定义 slot，始终保留返回 + 退出 -->
-    <header class="header">
+    <header v-if="showBack || showLogout || title || $slots.header" class="header">
       <!-- 顶部栏内容容器：控制最大宽度 + 居中 -->
       <div class="headerInner">
         <!-- 统一顶部栏：左侧返回 + 中间标题/自定义内容 + 右侧退出 -->
@@ -47,7 +47,10 @@
         - iPad / 手机：取消固定宽度，用 100% 宽度 + 适配内边距
         - 所有数值来自 responsive-tokens.css 中的 CSS 变量
       -->
-      <div class="contentInner">
+      <div class="contentInner" :class="{
+        'contentInner--fullBleed': fullBleed,
+        'contentInner--noPadding': fullBleedNoPadding
+      }">
         <slot></slot>
       </div>
     </main>
@@ -64,10 +67,14 @@ import { useRouter } from 'vue-router' // 引入路由，用于退出跳转
 // 定义组件接收的参数（父组件传进来的数据）
 const props = defineProps({
   title: { type: String, default: '' }, // 页面标题（当使用默认顶部栏时显示）
-  // 是否显示左侧“返回”按钮：默认 true，大多数学生端功能页都需要
+  // 是否显示左侧"返回"按钮：默认 true，大多数学生端功能页都需要
   showBack: { type: Boolean, default: true },
-  // 是否显示右侧“退出”按钮：默认 true，登录页等可通过传 false 隐藏
-  showLogout: { type: Boolean, default: true }
+  // 是否显示右侧"退出"按钮：默认 true，登录页等可通过传 false 隐藏
+  showLogout: { type: Boolean, default: true },
+  // 是否内容区满宽铺开（学生端平板首页等需要）
+  fullBleed: { type: Boolean, default: false },
+  // 是否移除内容区内边距（配合 fullBleed 使用，实现真正的满宽无 padding）
+  fullBleedNoPadding: { type: Boolean, default: false },
 })
 
 // 创建路由实例：用 router.push() 来跳转页面
@@ -217,6 +224,15 @@ function handleBack() {
   margin: 0 auto; /* 水平居中 */
   /* 内容区上下留白略大于顶部栏，营造“内容在同一张纸上自然排版”的感觉 */
   padding: calc(var(--layout-page-padding-y) * 1.1) var(--layout-page-padding-x);
+}
+
+.contentInner--fullBleed {
+  max-width: 100%;
+  padding: 0 !important; /* 关键：fullBleed 时不再给内容区额外留白 */
+}
+
+.contentInner--noPadding {
+  padding: 0 !important;
 }
 
 /* =========================

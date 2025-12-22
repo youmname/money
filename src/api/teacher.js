@@ -2,6 +2,13 @@
 // 老师端相关接口（目前为前端 mock，后续可无缝切换为真实后端接口）
 // 约定：所有函数返回 Promise，方便与真实 http 请求保持一致
 
+import {
+  mockCreateLesson,
+  mockGetTodayLessons,
+  mockGetLessonsByDateRange,
+  mockGetWeekLessons,
+} from './mock/teacher.js'
+
 /**
  * 获取老师首页统计数据（Mock）
  *
@@ -74,5 +81,55 @@ export async function getStudentList() {
   ]
 
   return Promise.resolve(list)
+}
+
+/**
+ * 创建课程（Mock）
+ *
+ * 参数说明：
+ * - studentId: string      学生 ID
+ * - title: string          课程名称
+ * - date: string          日期（格式：YYYY-MM-DD）
+ * - startTime: string     开始时间（格式：HH:mm）
+ * - endTime: string       结束时间（格式：HH:mm）
+ *
+ * 返回示例：
+ * {
+ *   id: string            课程 ID
+ *   studentId: string      学生 ID
+ *   title: string          课程名称
+ *   date: string           日期
+ *   startTime: string      开始时间
+ *   endTime: string        结束时间
+ * }
+ */
+export async function createLesson(data) {
+  return mockCreateLesson(data)
+}
+
+/**
+ * 获取指定日期范围内的课程
+ * @param {string} startDate 开始日期（格式：YYYY-MM-DD）
+ * @param {string} endDate 结束日期（格式：YYYY-MM-DD）
+ * @returns {Promise<Array>} 课程列表
+ */
+export async function getLessonsByDateRange(startDate, endDate) {
+  return mockGetLessonsByDateRange(startDate, endDate)
+}
+
+/**
+ * 获取今日课程
+ * @returns {Promise<Array>} 今日课程列表，按开始时间排序
+ */
+export async function getTodayLessons() {
+  return mockGetTodayLessons()
+}
+
+/**
+ * 获取本周（周一到周日）的课程
+ * @returns {Promise<Array>} 本周课程列表
+ */
+export async function getWeekLessons() {
+  return mockGetWeekLessons()
 }
 

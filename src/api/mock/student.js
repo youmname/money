@@ -52,13 +52,53 @@ function getDelayMsByMode(mode, defaultMs) {
       }
     }
   
-    // normal
+    // normal：从 MockDB 读取今日课程
+    try {
+      // 动态导入避免循环依赖
+      const { dbGetLessons } = await import('./db.js')
+      const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+      const lessons = dbGetLessons()
+      
+      // 查找今天的课程，按开始时间排序，取最早的一条
+      const todayLessons = lessons
+        .filter((lesson) => {
+          const lessonDate = lesson.startAt.split(' ')[0]
+          return lessonDate === today
+        })
+        .sort((a, b) => a.startAt.localeCompare(b.startAt))
+      
+      if (todayLessons.length === 0) {
+        // 没有今日课程，返回空态数据
+        return {
+          time: '--:--',
+          title: '',
+          range: '',
+          teacher: '',
+          lessonId: ''
+        }
+      }
+      
+      const lesson = todayLessons[0]
+      const startTime = lesson.startAt.split(' ')[1] // 提取时间部分
+      const endTime = lesson.endAt.split(' ')[1] // 提取时间部分
+      
+      return {
+        time: startTime,
+        title: lesson.courseName,
+        range: `${startTime}–${endTime}`,
+        teacher: '老师', // 暂时固定，后续可以从学生信息获取
+        lessonId: lesson.lessonId
+      }
+    } catch (err) {
+      console.error('[mockGetTodayLesson] 从 MockDB 读取失败', err)
+      // 容错：返回空态数据
     return {
-      time: '09:30',
-      title: '高中英语 第 3 课',
-      range: '09:30–10:30',
-      teacher: '张老师',
-      lessonId: 'lesson-20251218-0930'
+        time: '--:--',
+        title: '',
+        range: '',
+        teacher: '',
+        lessonId: ''
+      }
     }
   }
   
@@ -473,38 +513,41 @@ function getDelayMsByMode(mode, defaultMs) {
       throw new Error('mock fail: getWeekPlan')
     }
 
-    const today = new Date()
-    const baseMonday = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate() - ((today.getDay() + 6) % 7),
-    )
+  const today = new Date()
+  const baseMonday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() - ((today.getDay() + 6) % 7),
+  )
 
-    const days = ['一', '二', '三', '四', '五', '六', '日'].map((label, index) => {
-      const date = new Date(baseMonday.getTime() + index * 24 * 60 * 60 * 1000)
-      const iso = date.toISOString().slice(0, 10)
-      return {
-        weekday: index,
-        label: `周${label}`,
-        date: iso,
-        lessons:
-          index === 1 || index === 3
-            ? [
-                {
-                  id: `lesson-${index}-1`,
-                  title: '初中英语 · 单词课',
-                  startTime: '19:00',
-                  endTime: '20:00',
-                },
-              ]
-            : [],
-      }
-    })
+  // 读取共享 store 中的课程
+  let lessons = []
+  try {
+    const { dbGetLessons } = await import('./db.js')
+    lessons = dbGetLessons()
+  } catch (err) {
+    console.error('[mockGetWeekPlan] 读取课程失败', err)
+  }
 
-    if (mode === 'empty') {
-      // 保留 days 结构但 lessons 全空，方便前端按“整周无课”判定空态
-      return { days: days.map((d) => ({ ...d, lessons: [] })) }
+  const days = ['一', '二', '三', '四', '五', '六', '日'].map((label, index) => {
+    const date = new Date(baseMonday.getTime() + index * 24 * 60 * 60 * 1000)
+    const iso = date.toISOString().slice(0, 10)
+    const dayLessons = lessons
+      .filter((lesson) => lesson.startAt.split(' ')[0] === iso)
+      .sort((a, b) => a.startAt.localeCompare(b.startAt))
+      .map((lesson) => ({
+        id: lesson.lessonId,
+        title: lesson.courseName,
+        startTime: lesson.startAt.split(' ')[1],
+        endTime: lesson.endAt.split(' ')[1],
+      }))
+    return {
+      weekday: index,
+      label: `周${label}`,
+      date: iso,
+      lessons: mode === 'empty' ? [] : dayLessons,
     }
+  })
 
-    return { days }
+  return { days }
   }

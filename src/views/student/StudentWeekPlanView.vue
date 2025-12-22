@@ -31,7 +31,7 @@ onMounted(async () => {
 const days = computed(() => (week.value && Array.isArray(week.value.days) ? week.value.days : []))
 
 const hasAnyLesson = computed(() =>
-  days.value.some((d) => Array.isArray(d.lessons) && d.lessons.length > 0),
+  days.value.some((d) => Array.isArray(d.lessons) && d.lessons.length > 0)
 )
 </script>
 

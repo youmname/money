@@ -119,10 +119,22 @@ const panelStyle = computed(() => {
   height: 100%;
 }
 
+/*
+  关键需求：6 个入口方块“高度再高一些”（至少比现在高 1/3）。
+  FeatureCard 是通用组件，这里只在 ActionPanel 场景做局部增强。
+*/
+.grid6 :deep(.featureCard) {
+  min-height: 120px;
+}
+
 /* 自适应：手机改为 1 列 */
 @media (max-width: 600px) {
   .grid6 {
     grid-template-columns: 1fr;
+  }
+
+  .grid6 :deep(.featureCard) {
+    min-height: 104px;
   }
 }
 </style>

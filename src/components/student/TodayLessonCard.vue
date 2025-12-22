@@ -1,51 +1,87 @@
-<!-- TodayLessonCard：学生端首页“今日课程”包装组件
-  用途：对外仍然暴露原来的 Props/事件，但内部用通用 LessonCard 渲染
-  Props：
-    - lesson: Object（必填）课程信息对象，包含：
-        - time: string（大号时间）
-        - title: string（课程标题）
-        - range: string（时间范围）
-        - teacher: string（老师名字）
-    - bgUrl: string（必填）背景图 URL
-  事件：
-    - enterClassroom：点击“进入教室”主按钮时对外抛出
-  说明：
-    - 保持对外接口不变，只把内部 UI 换成可复用的 LessonCard
+<!--
+  TodayLessonCard：学生端首页“今日课程”业务卡片
+  - 外层统一磨砂壳（GlassCard），内部复用通用 LessonCard
+  - 兼容父组件在数据未就绪时传入 undefined：不再使用 required props
 -->
+
 <template>
-  <!-- 使用通用 GlassCard 作为外层磨砂容器，便于后续与其他卡片统一 -->
   <GlassCard variant="strong" padding="none" class="todayLessonCard">
     <LessonCard
-      :tag-text="'今日课程'"
-      :time="lesson.time"
-      :title="lesson.title"
-      :meta="`${lesson.range} · ${lesson.teacher}`"
-      :bg-url="bgUrl"
-      primary-text="进入教室"
-      @primary="$emit('enterClassroom')"
+      :time="safeLesson.time"
+      :title="safeLesson.title"
+      :meta="metaText"
+      :bg-url="safeBgUrl"
+      :primary-text="primaryText"
+      @primary="handleEnter"
     />
   </GlassCard>
 </template>
 
 <script setup>
-// ==========================
-// TodayLessonCard：薄包装，复用 LessonCard
-// ==========================
-
+import { computed } from 'vue'
 import LessonCard from '@/components/common/LessonCard.vue'
 import GlassCard from '@/components/common/GlassCard.vue'
 
 const props = defineProps({
-  lesson: { type: Object, required: true },
-  bgUrl: { type: String, required: true }
+  lesson: {
+    type: Object,
+    default: () => ({
+      time: '--:--',
+      title: '',
+      range: '',
+      teacher: '',
+      lessonId: ''
+    })
+  },
+  bgUrl: {
+    type: String,
+    default: ''
+  },
+  primaryText: {
+    type: String,
+    default: '进入教室'
+  }
 })
 
-const emit = defineEmits(['enterClassroom'])
+const emit = defineEmits(['enter-classroom'])
+
+const safeLesson = computed(() => {
+  return props.lesson || {
+    time: '--:--',
+    title: '',
+    range: '',
+    teacher: '',
+    lessonId: ''
+  }
+})
+
+const safeBgUrl = computed(() => props.bgUrl || '')
+
+const metaText = computed(() => {
+  const range = safeLesson.value.range || ''
+  const teacher = safeLesson.value.teacher || ''
+  if (!range && !teacher) return ''
+  if (!range) return teacher
+  if (!teacher) return range
+  return `${range} · ${teacher}`
+})
+
+function handleEnter() {
+  emit('enter-classroom', safeLesson.value.lessonId)
+}
 </script>
 
-<!-- 此处样式尽量保持最小，只负责与外层容器配合 -->
 <style scoped>
+@import '@/assets/base-tokens.css';
+@import '@/assets/responsive-tokens.css';
+
 .todayLessonCard {
-  /* 让 LessonCard 自身高度/阴影主导视觉，因此不额外添加 padding */
+  width: 100%;
+  height: 100%;
+  --lesson-card-h: 100%;
+}
+
+.todayLessonCard :deep(.lessonCard) {
+  height: 100%;
 }
 </style>

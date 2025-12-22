@@ -38,7 +38,7 @@ function goBack() {
 </script>
 
 <template>
-  <AppShell title="404">
+  <AppShell title="404" :show-back="true" :show-logout="true">
     <div class="nfWrap">
       <div class="nfCard">
         <h2 class="nfTitle">404：页面不存在</h2>
