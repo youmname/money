@@ -32,8 +32,8 @@ let submitTimer = null
 const passwordBoxRef = ref(null)
 const confirmBoxRef = ref(null)
 
-const phoneValid = computed(() => /^1\\d{10}$/.test(phone.value))
-const passwordValid = computed(() => /^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$/.test(password.value))
+const phoneValid = computed(() => /^1\d{10}$/.test(phone.value))
+const passwordValid = computed(() => /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password.value))
 const confirmMatched = computed(() => password.value && password.value === confirmPassword.value)
 
 const recentLogs = computed(() => {
@@ -398,4 +398,10 @@ onBeforeUnmount(() => {
     width: 100%;
   }
 }
+
+/* 隐藏浏览器自带的小眼睛 */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+
 </style>

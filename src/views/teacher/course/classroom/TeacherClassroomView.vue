@@ -1,5 +1,4 @@
 <script setup>
-// 沉浸式老师教室：左侧大区（工具区+课件列），右侧栏（视频+聊天+下课）
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import CoursewareBoard from '@/components/classroom/CoursewareBoard.vue'
@@ -56,30 +55,27 @@ function handleEndClass() {
 
 <template>
   <div class="classroomContainer">
-    <!-- 左侧大区（Stage）：工具区 + 课件列 -->
     <div class="classroom__stage">
-      <!-- 左列：工具区 -->
       <div class="classroom__tools">
         <div class="toolSection">
           <h3 class="toolTitle">工具</h3>
-          <BaseButton variant="secondary" class="toolBtn" @click="handlePushQuestion">发送题目</BaseButton>
+          <BaseButton variant="secondary" class="toolBtn" @click="handlePushQuestion">
+            发送题目
+          </BaseButton>
           <BaseButton variant="secondary" class="toolBtn">批注</BaseButton>
           <BaseButton variant="secondary" class="toolBtn">画笔</BaseButton>
         </div>
       </div>
 
-      <!-- 右列：课件列（上下两段） -->
       <div class="classroom__coursewareCol">
-        <!-- 上：课件展示 -->
         <div class="classroom__coursewareStage">
-          <CoursewareBoard 
-            v-model:model-value="currentPage" 
-            :total-pages="totalPages" 
-            :show-pager="false" 
-            @page-change="handlePageChange" 
+          <CoursewareBoard
+            v-model:model-value="currentPage"
+            :total-pages="totalPages"
+            :show-pager="false"
+            @page-change="handlePageChange"
           />
         </div>
-        <!-- 下：页码/翻页条 -->
         <div class="classroom__pageNav">
           <BaseButton
             variant="secondary"
@@ -100,20 +96,16 @@ function handleEndClass() {
       </div>
     </div>
 
-    <!-- 右侧栏（Side）：视频+聊天+下课 -->
     <div class="classroom__side">
-      <!-- 老师视频 -->
       <div class="videoSection">
         <div class="camBox">📷 老师摄像头</div>
         <div class="lessonInfo">课堂号：{{ lessonId }}</div>
       </div>
 
-      <!-- 学生视频（占位） -->
       <div class="videoSection">
         <div class="camBox">📷 学生摄像头</div>
       </div>
 
-      <!-- 聊天/评论区 -->
       <div class="chatArea">
         <div class="chatHeader">
           <span>弹幕 / 互动</span>
@@ -125,13 +117,21 @@ function handleEndClass() {
           </div>
         </div>
         <div class="chatInput">
-          <input v-model="chatInput" class="chatField" placeholder="发弹幕 / 提醒学生" @keyup.enter="handleSendChat" />
-          <BaseButton variant="primary" class="chatSend" @click="handleSendChat">发送</BaseButton>
+          <input
+            v-model="chatInput"
+            class="chatField"
+            placeholder="发弹幕 / 提醒学生"
+            @keyup.enter="handleSendChat"
+          />
+          <BaseButton variant="primary" class="chatSend" @click="handleSendChat">
+            发送
+          </BaseButton>
         </div>
       </div>
 
-      <!-- 下课按钮 -->
-      <BaseButton variant="primary" class="endClassBtn" @click="handleEndClass">下课</BaseButton>
+      <BaseButton variant="primary" class="endClassBtn" @click="handleEndClass">
+        下课
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -140,23 +140,24 @@ function handleEndClass() {
 @import '@/assets/base-tokens.css';
 
 .classroomContainer {
+  width: 100vw;
+  min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr 320px;
-  min-height: 100vh;
   background: #0b1224;
   color: #e5e7eb;
+  margin: 0;
   padding: var(--base-spacing-md);
   gap: var(--base-spacing-md);
+  overflow: hidden;
 }
 
-/* 左侧大区（Stage）：工具区 + 课件列 */
 .classroom__stage {
   display: grid;
   grid-template-columns: 200px 1fr;
   gap: var(--base-spacing-md);
 }
 
-/* 左列：工具区 */
 .classroom__tools {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -181,14 +182,12 @@ function handleEndClass() {
   height: 40px;
 }
 
-/* 右列：课件列（上下两段） */
 .classroom__coursewareCol {
   display: flex;
   flex-direction: column;
   gap: var(--base-spacing-sm);
 }
 
-/* 上：课件展示 */
 .classroom__coursewareStage {
   flex: 1;
   background: rgba(255, 255, 255, 0.04);
@@ -198,7 +197,6 @@ function handleEndClass() {
   min-height: 0;
 }
 
-/* 下：页码/翻页条 */
 .classroom__pageNav {
   display: flex;
   align-items: center;
@@ -218,7 +216,6 @@ function handleEndClass() {
   text-align: center;
 }
 
-/* 右侧栏（Side） */
 .classroom__side {
   display: flex;
   flex-direction: column;
@@ -338,10 +335,5 @@ function handleEndClass() {
   }
 }
 </style>
-
-
-
-
-
 
 

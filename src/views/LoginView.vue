@@ -231,4 +231,10 @@ const handleLogin = () => {
   cursor: pointer;
   opacity: 0.8;
 }
+
+/* 隐藏浏览器自带的小眼睛 */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+
 </style>

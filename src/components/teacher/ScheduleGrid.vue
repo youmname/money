@@ -47,6 +47,7 @@ const emit = defineEmits(['select', 'enter'])
         v-for="lesson in lessonBlocks"
         :key="lesson.lessonId"
         class="lessonBlock"
+        :class="lesson.colorClass"
         :style="{
           top: `calc(${lesson.top} * var(--cell-h))`,
           height: `calc(${lesson.height} * var(--cell-h))`,
@@ -135,11 +136,39 @@ const emit = defineEmits(['select', 'enter'])
   box-shadow: 0 10px 20px rgba(59, 130, 246, 0.16);
   display: grid;
   gap: 6px;
+  transition: all 0.2s;
+  cursor: pointer;
 }
+
+.lessonBlock:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 24px rgba(59, 130, 246, 0.2);
+  z-index: 10;
+}
+
+/* Color Variants */
+.block-green {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.35);
+  box-shadow: 0 10px 20px rgba(34, 197, 94, 0.16);
+}
+.block-green:hover { box-shadow: 0 14px 24px rgba(34, 197, 94, 0.2); }
+.block-green .lessonTitle { color: #15803d; }
+.block-green .enterBtn { color: #15803d; border-color: rgba(34, 197, 94, 0.5); }
+
+.block-orange {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: rgba(249, 115, 22, 0.35);
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.16);
+}
+.block-orange:hover { box-shadow: 0 14px 24px rgba(249, 115, 22, 0.2); }
+.block-orange .lessonTitle { color: #c2410c; }
+.block-orange .enterBtn { color: #c2410c; border-color: rgba(249, 115, 22, 0.5); }
 
 .lessonTitle {
   font-weight: 800;
   color: #1f2937;
+  font-size: 14px;
 }
 
 .lessonTime {
@@ -151,6 +180,7 @@ const emit = defineEmits(['select', 'enter'])
   justify-self: start;
   height: 28px;
   padding: 0 10px;
+  background: #fff;
 }
 
 @media (max-width: 767.98px) {

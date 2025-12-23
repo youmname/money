@@ -18,10 +18,11 @@
    我们让它全屏铺满，而不是居中限制宽度
    ------------------------------------------- */
 #app {
-  width: 100vw;           /* 视口宽度铺满 */
+  width: 100%;           /* Changed from 100vw to 100% to avoid scrollbar width causing horizontal scroll */
   min-height: 100vh;      /* 最小高度铺满屏幕 */
   margin: 0;              /* 取消居中 */
   padding: 0;             /* 取消默认内边距 */
+  box-sizing: border-box; /* Ensure padding doesn't add to width */
 }
 
 /* -------------------------------------------
@@ -30,6 +31,12 @@
 body {
   margin: 0;              /* 去掉默认外边距 */
   padding: 0;             /* 去掉默认内边距 */
+  width: 100%;            /* Ensure full width */
+  overflow-x: hidden;     /* Prevent horizontal scroll globally */
+}
+
+*, *::before, *::after {
+  box-sizing: border-box; /* Global box-sizing reset */
 }
 
 /* -------------------------------------------

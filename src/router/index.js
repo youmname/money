@@ -9,9 +9,7 @@ import LoginView from '@/views/LoginView.vue' // 登录页
 import ForgotPasswordView from '@/views/ForgotPasswordView.vue' // 忘记密码页
 import NotFoundView from '@/views/NotFoundView.vue' // 404页
 
-import TeacherHomeView from '@/views/teacher/TeacherHomeView.vue' // 老师端首页
-import StudentListView from '@/views/teacher/StudentListView.vue' // 老师端 - 学生列表
-import ScheduleView from '@/views/teacher/ScheduleView.vue' // 老师端 - 排课日历
+import TeacherLayout from '@/layouts/teacher/TeacherLayout.vue'
 import TeacherBillingView from '@/views/teacher/TeacherBillingView.vue' // 老师端 - 服务费台账
 import StudentHomeView from '@/views/student/StudentHomeView.vue' // 学生端首页
 import ParentHomeView from '@/views/parent/ParentHomeView.vue' // 家长端首页（H5）
@@ -43,40 +41,135 @@ const router = createRouter({
       component: ForgotPasswordView,
     },
 
-    // 老师端首页
+    // 老师端：统一布局 + 嵌套路由
     {
-      path: '/teacher/home',
-      name: 'teacherHome',
-      component: TeacherHomeView,
+      path: '/teacher',
+      component: TeacherLayout,
+      children: [
+        {
+          path: 'home',
+          name: 'teacherHome',
+          component: () => import('@/views/teacher/home/TeacherHomeView.vue'),
+          meta: { teacherNavKey: 'home', showTeacherNav: true },
+        },
+        {
+          path: 'students',
+          name: 'teacherStudents',
+          component: () => import('@/views/teacher/students/TeacherStudentsView.vue'),
+          meta: { teacherNavKey: 'students', showTeacherNav: true, fluid: true },
+        },
+        {
+          path: 'course',
+          name: 'teacherCourse',
+          component: () => import('@/views/teacher/course/TeacherCourseView.vue'),
+          meta: { teacherNavKey: 'course', showTeacherNav: true },
+        },
+        {
+          path: 'schedule',
+          name: 'teacherSchedule',
+          component: () => import('@/views/teacher/course/TeacherScheduleView.vue'),
+          meta: { teacherNavKey: 'course', showTeacherNav: true },
+        },
+        {
+          path: 'question-bank',
+          name: 'teacherQuestionBank',
+          component: () =>
+            import('@/views/teacher/questionbank/TeacherQuestionBankView.vue'),
+          meta: { teacherNavKey: 'questionBank', showTeacherNav: true },
+        },
+
+        // 学生二级页
+        {
+          path: 'students/add',
+          name: 'teacherStudentAdd',
+          component: () => import('@/views/teacher/students/pages/StudentAddPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        {
+          path: 'students/list',
+          name: 'teacherStudentList',
+          component: () => import('@/views/teacher/students/pages/StudentListPage.vue'),
+          meta: { showTeacherNav: false, fluid: true },
+        },
+        {
+          path: 'students/data',
+          name: 'teacherStudentData',
+          component: () => import('@/views/teacher/students/pages/StudentDataPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+
+        // 课程二级页
+        {
+          path: 'course/class-add',
+          name: 'teacherClassAdd',
+          component: () => import('@/views/teacher/course/pages/ClassAddPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        {
+          path: 'course/content',
+          name: 'teacherCourseContent',
+          component: () => import('@/views/teacher/course/pages/CourseContentPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+
+        // 题库二级页
+        {
+          path: 'question-bank/word',
+          name: 'teacherQuestionBankWord',
+          component: () =>
+            import('@/views/teacher/questionbank/pages/WordQuestionBankPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        {
+          path: 'question-bank/reading',
+          name: 'teacherQuestionBankReading',
+          component: () =>
+            import('@/views/teacher/questionbank/pages/ReadingQuestionBankPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        {
+          path: 'question-bank/grammar',
+          name: 'teacherQuestionBankGrammar',
+          component: () =>
+            import('@/views/teacher/questionbank/pages/GrammarQuestionBankPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        {
+          path: 'question-bank/write',
+          name: 'teacherQuestionBankWrite',
+          component: () =>
+            import('@/views/teacher/questionbank/pages/WriteQuestionBankPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        // 个人中心（占位）
+        {
+          path: 'self',
+          name: 'teacherSelf',
+          component: () => import('@/views/teacher/self/TeacherSelfView.vue'),
+          meta: { teacherNavKey: 'self', showTeacherNav: true },
+        },
+      ],
     },
-    // 老师端：学生列表
+    // 沉浸页（不显示顶部导航，独立于 TeacherLayout）
     {
-      path: '/teacher/students',
-      name: 'teacherStudents',
-      component: StudentListView,
+      path: '/teacher/classroom/:lessonId',
+      name: 'teacherClassroom',
+      component: () =>
+        import('@/views/teacher/course/classroom/TeacherClassroomView.vue'),
+      meta: { showTeacherNav: false, layout: 'none' },
     },
-    // 老师端：排课日历
     {
-      path: '/teacher/schedule',
-      name: 'teacherSchedule',
-      component: ScheduleView,
+      path: '/teacher/classroom/:lessonId/summary',
+      name: 'teacherClassSummary',
+      component: () =>
+        import('@/views/teacher/course/classroom/TeacherClassSummaryView.vue'),
+      meta: { showTeacherNav: false, layout: 'none' },
     },
     // 老师端：服务费台账
     {
       path: '/teacher/billing',
       name: 'teacherBilling',
       component: TeacherBillingView,
-    },
-    // 老师端：教室
-    {
-      path: '/teacher/classroom/:lessonId',
-      name: 'teacherClassroom',
-      component: () => import('@/views/teacher/TeacherClassroomView.vue'),
-    },
-    {
-      path: '/teacher/classroom/:lessonId/summary',
-      name: 'teacherClassSummary',
-      component: () => import('@/views/teacher/TeacherClassSummaryView.vue'),
     },
 
     // 学生端首页

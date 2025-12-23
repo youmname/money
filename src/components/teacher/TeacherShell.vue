@@ -3,10 +3,16 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
-  /** 当前所在模块：home | students | schedule | questionBank */
+  /** 当前所在模块：home | students | course | questionBank | self */
   active: { type: String, default: 'home' },
   /** 是否隐藏导航栏背景（仅显示文字） */
   hideNavBackground: { type: Boolean, default: false },
+  /** 是否显示顶部导航栏 */
+  showNav: { type: Boolean, default: true },
+  /** 是否居中显示内容区域（默认全宽） */
+  centered: { type: Boolean, default: false },
+  /** 是否流式布局（无内边距，用于自定义背景/全屏页） */
+  fluid: { type: Boolean, default: false },
 })
 
 const route = useRoute()
@@ -25,7 +31,7 @@ const avatarEmoji = computed(() => '🙂')
 
 function go(path) {
   menuOpen.value = false
-  if (route.path !== path) router.push(path)
+  router.push(path)
 }
 
 function logout() {
@@ -42,7 +48,11 @@ function toggleMenu() {
 
 <template>
   <div class="teacherPage">
-    <header class="topNav" :class="{ 'topNav--noBackground': hideNavBackground }">
+    <header
+      v-if="showNav"
+      class="topNav teacherShellHeader"
+      :class="{ 'topNav--noBackground': hideNavBackground }"
+    >
       <nav class="tabs" aria-label="Teacher navigation">
         <button
           class="tab"
@@ -58,13 +68,13 @@ function toggleMenu() {
           type="button"
           @click="go('/teacher/students')"
         >
-          学生管理
+          学生
         </button>
         <button
           class="tab"
-          :class="{ active: active === 'schedule' }"
+          :class="{ active: active === 'course' }"
           type="button"
-          @click="go('/teacher/schedule')"
+          @click="go('/teacher/course')"
         >
           课程
         </button>
@@ -76,6 +86,14 @@ function toggleMenu() {
         >
           题库分类
         </button>
+        <button
+          class="tab"
+          :class="{ active: active === 'self' }"
+          type="button"
+          @click="go('/teacher/self')"
+        >
+          个人中心
+        </button>
       </nav>
 
       <div class="profile">
@@ -85,7 +103,7 @@ function toggleMenu() {
         </button>
 
         <div v-if="menuOpen" class="profileMenu">
-          <button class="menuItem" type="button" @click="go('/teacher/profile')">
+          <button class="menuItem" type="button" @click="go('/teacher/self')">
             个人信息
           </button>
           <button class="menuItem danger" type="button" @click="logout">退出登录</button>
@@ -93,7 +111,7 @@ function toggleMenu() {
       </div>
     </header>
 
-    <main class="content">
+    <main :class="['content', { centered, fluid }]">
       <slot />
     </main>
   </div>
@@ -105,25 +123,68 @@ function toggleMenu() {
 
 .teacherPage {
   min-height: 100vh;
-  background: #eef2fb;
+  /* background: #eef2fb;  <-- Remove this so view backgrounds show through if needed */
 }
 
-/* 顶部导航：国际化"宣传站"风格（扁平、轻阴影、呼吸感） */
+/* 顶部导航：透明悬浮 - 随页面滚动 (Like Student View) */
 .topNav {
-  position: sticky;
+  position: absolute; /* Changed from fixed to absolute so it scrolls with page */
   top: 0;
-  z-index: 10;
+  left: 0;
+  right: 0;
+  z-index: 100;
 
   display: grid;
-  grid-template-columns: 1fr auto 1fr; /* 左占位，中间tabs，右profile */
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
 
   height: 64px;
   padding: 0 var(--layout-page-padding-x);
 
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+  background: transparent;
+  border-bottom: none;
+}
+
+.content {
+  width: 100%;
+  padding: 0; /* Remove padding-top: 64px so view starts at top */
+  max-width: none;
+  margin: 0;
+}
+
+/* When fluid, we definitely want 0 padding */
+.content.fluid {
+  padding: 0;
+}
+
+/* If we want the view background to extend to the top, we need the content to start at top.
+   So padding-top should be handled by the view or be 0, but content pushed down?
+   No, if background is on the view container, we want the view container to be full height.
+   So .content padding-top: 0.
+   But then the text in the view will be under the header.
+   So the VIEW's internal container needs padding-top.
+   
+   In my previous edits to TeacherHomeView etc., I set padding-top: 0.
+   So I should set padding-top: 64px here? 
+   Or better: Let the TeacherShell be a simple wrapper.
+   
+   Let's set .content padding-top: 0.
+   And in the views, I need to ensure the *content* (text) is pushed down, but background is full.
+   
+   TeacherHomeView: .homeHub has padding-top: 32px (from my last edit). 32px + 64px header?
+   If header is fixed and transparent, it sits ON TOP of the view.
+   So view starts at Y=0.
+   View content needs to be at Y=64+.
+   
+   TeacherHomeView .homeHub { padding-top: 80px; } (64 + 16)
+   TeacherStudentsView .studentsHub { padding-top: 80px; }
+   TeacherCourseView .coursesHub { padding-top: 80px; }
+   
+   And TeacherShell .content { padding: 0; }
+*/
+
+.teacherShellHeader {
+  /* This class was used in the template. */
 }
 
 /* 隐藏导航栏背景，只显示文字，整体居中 */
@@ -232,10 +293,24 @@ function toggleMenu() {
   color: rgba(220, 38, 38, 0.92);
 }
 
-.content {
-  padding: var(--space-lg) var(--layout-page-padding-x);
-  max-width: 1440px;
+/* Remove .content style block here as it's defined above but with conflict. 
+   The one above has padding-top: 64px. 
+   The one below has padding: var(--space-lg) ...
+   We should unify them.
+   Since we are using the one above, I will remove the duplicate definition below.
+*/
+
+.content.centered {
+  max-width: 1200px;
   margin: 0 auto;
+  /* padding: var(--space-lg); <-- This will override padding-top: 64px if not careful */
+  padding: 88px var(--layout-page-padding-x) 40px; /* Consistent with others */
+}
+
+/* Fluid content should have 0 padding */
+.content.fluid {
+  padding: 0;
+  max-width: none;
 }
 
 @media (max-width: 767.98px) {
@@ -257,8 +332,9 @@ function toggleMenu() {
     padding: 0 10px;
   }
 
+  /* content padding adjustment for mobile */
   .content {
-    padding: var(--space-md) var(--layout-page-padding-x);
+    padding-top: 80px; /* Adjust for mobile header height */
   }
 }
 </style>
