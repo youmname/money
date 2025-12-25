@@ -2,6 +2,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
+import CourseFinanceSection from './CourseFinanceSection.vue'
 import { createStudent, createLesson, getLessonsByDateRange } from '@/api/teacher'
 import { generateLessonEvents, checkConflicts, inferClassMode } from '@/utils/schedule.js'
 

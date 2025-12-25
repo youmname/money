@@ -5,13 +5,32 @@
 // 配色：电光蓝 + 深海蓝 + 极简白 (+ 橙/紫 点缀)
 // ==========================
 
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { getClasses } from '@/api/teacher'
 
 const router = useRouter()
+const activeClassCount = ref(0)
+const latestClassName = ref('--')
 
 function go(path) {
   router.push(path)
 }
+
+onMounted(async () => {
+  try {
+    const classes = await getClasses()
+    if (Array.isArray(classes)) {
+      activeClassCount.value = classes.filter(c => c.status === 'ongoing').length
+      if (classes.length > 0) {
+        // Assume first one is latest because mock api create prepends
+        latestClassName.value = classes[0].name
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load class stats', e)
+  }
+})
 </script>
 
 <template>
@@ -24,8 +43,8 @@ function go(path) {
         class="bentoCard bentoCard--light"
         role="button"
         tabindex="0"
-        @click="go('/teacher/course/class-add')"
-        @keydown.enter.prevent="go('/teacher/course/class-add')"
+        @click="go('/teacher/course/class-list')"
+        @keydown.enter.prevent="go('/teacher/course/class-list')"
       >
         <div class="cardDecor cardDecor--orange"></div>
 
@@ -42,15 +61,15 @@ function go(path) {
         <div class="cardContent">
           <div class="statRow">
              <span class="label">活跃班级</span>
-             <span class="value">8 <span class="unit">个</span></span>
+             <span class="value">{{ activeClassCount }} <span class="unit">个</span></span>
           </div>
           <div class="metaRow">
-             <span>最新: 英语启蒙 A 班</span>
+             <span>最新: {{ latestClassName }}</span>
           </div>
         </div>
 
         <div class="cardFooter">
-          <span class="actionText text-orange">新建班级 +</span>
+          <span class="actionText text-orange">查看班级</span>
           <div class="actionBtn btn-orange">
              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7l7 7-7 7"/></svg>
           </div>

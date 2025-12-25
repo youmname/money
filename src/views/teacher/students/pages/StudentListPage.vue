@@ -166,10 +166,10 @@ onMounted(fetchList)
     <!-- Header / Filter Bar -->
     <div class="headerBar">
       <div class="leftActions">
-        <BaseButton type="secondary" size="small" @click="back">
-          <template #icon>←</template>
-          返回
-        </BaseButton>
+        <button class="backBtn" @click="back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="divider vertical"></div>
         <div class="filterGroup">
           <div class="searchWrapper">
             <span class="searchIcon">🔍</span>
@@ -318,7 +318,42 @@ onMounted(fetchList)
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
 }
 
-.leftActions { display: flex; align-items: center; gap: 20px; }
+.leftActions { display: flex; align-items: center; gap: 12px; }
+
+/* 返回按钮 - 与 StudentDataPage 保持一致 */
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.backBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* 分隔线 */
+.divider {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+
+.divider.vertical {
+  width: 1px;
+  height: 24px;
+}
+
 .rightActions { display: flex; align-items: center; gap: 16px; margin-left: auto; }
 
 .filterGroup { display: flex; align-items: center; gap: 12px; }

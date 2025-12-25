@@ -98,7 +98,7 @@ function handleCancel() {
 .baseModal__overlay {
   position: fixed; /* 固定定位 */
   inset: 0; /* 上下左右都为 0（铺满全屏） */
-  z-index: 1000; /* 层级（确保在最上层） */
+  z-index: 3000; /* 层级（确保在最上层，高于下拉框的2000） */
   display: flex; /* 弹性布局 */
   align-items: center; /* 垂直居中 */
   justify-content: center; /* 水平居中 */

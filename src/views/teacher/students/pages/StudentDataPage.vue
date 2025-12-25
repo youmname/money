@@ -324,59 +324,68 @@ function getLineAreaPath(data) {
   <div class="dashboardPage">
     <!-- 1. Full-Screen Header Bar -->
     <header class="topBar">
-      <div class="headerLeft">
+      <div class="topBarContent">
+        <!-- 返回按钮 -->
         <button class="backBtn" @click="back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </button>
+
+        <div class="divider vertical"></div>
         
-        <div class="controlGroup">
-          <!-- Search -->
-          <div class="searchBox">
-            <span class="searchIcon">🔍</span>
-            <input 
-              v-model="searchQuery" 
-              type="text" 
-              class="searchInput" 
-              placeholder="搜索学员..."
-            />
-            <div v-if="searchQuery && searchResults.length > 0" class="dropdownMenu searchResults">
-              <div v-for="s in searchResults" :key="s.id" class="menuItem" @click="selectTarget(s)">
-                {{ s.name }}
-              </div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <!-- Filters -->
-          <div class="filterWrapper">
-            <button class="filterTrigger" @click="isClassFilterOpen = !isClassFilterOpen; isCourseFilterOpen = false">
-              <span class="icon">🏫</span> 班级筛选
-              <span class="arrow">▼</span>
-            </button>
-            <div v-if="isClassFilterOpen" class="dropdownMenu">
-              <div class="menuItem" @click="selectAllClasses()">{{ activeCourseId ? '当前课程所有班级' : '全部班级' }}</div>
-              <div v-for="c in availableClasses" :key="c" class="menuItem" @click="selectTarget({ type: 'class', id: c, name: c })">{{ c }}</div>
-            </div>
-          </div>
-
-          <div class="filterWrapper">
-            <button class="filterTrigger" @click="isCourseFilterOpen = !isCourseFilterOpen; isClassFilterOpen = false">
-              <span class="icon">📚</span> 课程筛选
-              <span class="arrow">▼</span>
-            </button>
-            <div v-if="isCourseFilterOpen" class="dropdownMenu">
-              <div class="menuItem" @click="clearCourseFilter()">全部课程</div>
-              <div v-for="(label, key) in COURSE_MAP" :key="key" class="menuItem" @click="selectCourse(key, label)">{{ label }}</div>
+        <!-- 搜索框 -->
+        <div class="searchBox">
+          <span class="searchIcon">🔍</span>
+          <input 
+            v-model="searchQuery" 
+            type="text" 
+            class="searchInput" 
+            placeholder="搜索学员..."
+          />
+          <div v-if="searchQuery && searchResults.length > 0" class="dropdownMenu searchResults">
+            <div v-for="s in searchResults" :key="s.id" class="menuItem" @click="selectTarget(s)">
+              {{ s.name }}
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="headerRight">
+        <div class="divider vertical"></div>
+
+        <!-- 筛选器 -->
+        <div class="filterWrapper">
+          <button class="filterTrigger" @click="isClassFilterOpen = !isClassFilterOpen; isCourseFilterOpen = false">
+            <span class="icon">🏫</span>
+            <span class="filterText">班级筛选</span>
+            <span class="arrow">▼</span>
+          </button>
+          <div v-if="isClassFilterOpen" class="dropdownMenu">
+            <div class="menuItem" @click="selectAllClasses()">{{ activeCourseId ? '当前课程所有班级' : '全部班级' }}</div>
+            <div v-for="c in availableClasses" :key="c" class="menuItem" @click="selectTarget({ type: 'class', id: c, name: c })">{{ c }}</div>
+          </div>
+        </div>
+
+        <div class="filterWrapper">
+          <button class="filterTrigger" @click="isCourseFilterOpen = !isCourseFilterOpen; isClassFilterOpen = false">
+            <span class="icon">📚</span>
+            <span class="filterText">课程筛选</span>
+            <span class="arrow">▼</span>
+          </button>
+          <div v-if="isCourseFilterOpen" class="dropdownMenu">
+            <div class="menuItem" @click="clearCourseFilter()">全部课程</div>
+            <div v-for="(label, key) in COURSE_MAP" :key="key" class="menuItem" @click="selectCourse(key, label)">{{ label }}</div>
+          </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <!-- 当前视图标签 -->
         <div class="currentContext">
-          当前视图: <span class="contextTag">{{ selectedTarget.name }}</span>
+          <span class="contextLabel">当前视图:</span>
+          <span class="contextTag">{{ selectedTarget.name }}</span>
         </div>
+
+        <div class="divider vertical"></div>
+
+        <!-- 时间范围选择 -->
         <div class="filterPills">
           <button class="pill" :class="{ active: timeRange === 'week' }" @click="timeRange = 'week'">本周</button>
           <button class="pill" :class="{ active: timeRange === 'month' }" @click="timeRange = 'month'">本月</button>
@@ -711,20 +720,250 @@ function getLineAreaPath(data) {
   /* Removed max-width constraints if any were inherited */
 }
 
-/* Top Bar - Made transparent as per request 2, but kept functional with background for readability if content scrolls behind. 
-   To make it truly transparent and content flow behind, we'd need position absolute for content or negative margin.
-   User asked: "Make the header transparent: Allow the content below to appear as if it flows naturally under the navigation bar."
-   Let's make background transparent and add backdrop-filter.
-*/
+/* Top Bar - Optimized single-row layout */
 .topBar {
-  flex-shrink: 0; height: 64px;
-  background: rgba(255, 255, 255, 0.8); /* Semi-transparent */
-  backdrop-filter: blur(12px); /* Glass effect */
+  flex-shrink: 0; 
+  height: 64px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 0 24px; z-index: 50;
-  position: absolute; /* Float header */
-  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 50;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.topBarContent {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+/* 返回按钮 */
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.backBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* 分隔线 */
+.divider {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+
+.divider.vertical {
+  width: 1px;
+  height: 24px;
+}
+
+/* 搜索框 */
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 36px;
+  min-width: 200px;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.searchBox:focus-within {
+  border-color: #3b82f6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.searchIcon {
+  font-size: 14px;
+  margin-right: 8px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: #0f172a;
+  min-width: 0;
+}
+
+.searchInput::placeholder {
+  color: #94a3b8;
+}
+
+/* 筛选器 */
+.filterWrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.filterTrigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  height: 36px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.filterTrigger:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.filterTrigger .icon {
+  font-size: 14px;
+}
+
+.filterTrigger .filterText {
+  font-size: 13px;
+}
+
+.filterTrigger .arrow {
+  font-size: 10px;
+  color: #94a3b8;
+  transition: transform 0.2s;
+}
+
+.filterWrapper:has(.dropdownMenu) .filterTrigger .arrow {
+  transform: rotate(180deg);
+}
+
+/* 下拉菜单 */
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 160px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdownMenu.searchResults {
+  min-width: 200px;
+}
+
+.menuItem {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menuItem:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* 间距 */
+.spacer {
+  flex: 1;
+  min-width: 20px;
+}
+
+/* 当前视图 */
+.currentContext {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.contextLabel {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.contextTag {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3b82f6;
+  background: #eff6ff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #dbeafe;
+}
+
+/* 时间范围选择 */
+.filterPills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.pill {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.pill:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.pill.active {
+  background: #fff;
+  color: #2563eb;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Scrollable Content - Adjusted for floating header */
@@ -834,7 +1073,7 @@ function getLineAreaPath(data) {
 .lineSvg { width: 100%; height: 100%; overflow: visible; }
 .xAxisLabels { display: none; } /* Removed legacy HTML labels */
 .chartPoint { transition: all 0.2s; cursor: pointer; }
-.chartPoint:hover { stroke-width: 3; r: 6; }
+.chartPoint:hover { stroke-width: 3; }
 
 /* Radar Chart */
 .radarBody { display: flex; gap: 24px; height: 280px; align-items: center; }
@@ -844,8 +1083,8 @@ function getLineAreaPath(data) {
 .radarAxis { stroke: #e2e8f0; stroke-width: 1; stroke-dasharray: 4 2; }
 .radarShape { fill: rgba(59,130,246,0.2); stroke: #3b82f6; stroke-width: 2; transition: all 0.5s ease; }
 .radarShape.avg { fill: transparent; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 4 2; pointer-events: none; }
-.radarPoint { fill: #fff; stroke: #3b82f6; stroke-width: 2; cursor: pointer; transition: r 0.2s; }
-.radarPoint:hover { r: 6; fill: #3b82f6; }
+.radarPoint { fill: #fff; stroke: #3b82f6; stroke-width: 2; cursor: pointer; transition: all 0.2s; }
+.radarPoint:hover { fill: #3b82f6; }
 .radarLabel { font-size: 11px; fill: #64748b; font-weight: 600; }
 .radarTooltip { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(15,23,42,0.8); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; pointer-events: none; z-index: 10; }
 .abilityLegend { width: 120px; display: flex; flex-direction: column; gap: 16px; border-left: 1px solid #f1f5f9; padding-left: 16px; }
@@ -888,10 +1127,60 @@ function getLineAreaPath(data) {
   .kpiGrid { grid-template-columns: repeat(2, 1fr); }
   .mainGrid, .actionGrid { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 1024px) {
+  .topBarContent {
+    gap: 8px;
+  }
+  .searchBox {
+    min-width: 150px;
+  }
+  .filterTrigger .filterText {
+    display: none;
+  }
+  .currentContext .contextLabel {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .kpiGrid { grid-template-columns: 1fr; }
-  .topBar { padding: 0 16px; }
-  .searchContainer { width: 100%; max-width: 300px; }
-  .scrollableContent { padding: 16px; }
+  .topBar { 
+    padding: 0 12px; 
+    height: 56px;
+  }
+  .topBarContent {
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .topBarContent::-webkit-scrollbar {
+    display: none;
+  }
+  .searchBox {
+    min-width: 120px;
+    flex: 1;
+  }
+  .filterTrigger {
+    padding: 6px 10px;
+  }
+  .filterTrigger .icon {
+    margin-right: 0;
+  }
+  .currentContext {
+    display: none;
+  }
+  .filterPills {
+    gap: 2px;
+    padding: 3px;
+  }
+  .pill {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  .scrollableContent { 
+    padding: 72px 16px 16px 16px; 
+  }
 }
 </style>

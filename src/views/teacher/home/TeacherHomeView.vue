@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 // ==========================
 // TeacherHomeView：教师端首页 - 核心控制台
 // 视觉风格：Bento Grid + 磨砂玻璃 (保持与 Course/Student 页面一致)
@@ -20,6 +20,44 @@ const stats = ref({
   homeworkPending: 12, // 待批改
   remainingUses: 15, // 剩余次数 (套餐)
 })
+
+const courseOverview = ref({
+  recent: 6,
+  favorite: 12,
+  unlocked: 28,
+  total: 64,
+})
+
+const courseCategories = [
+  { key: 'favorite', label: '收藏' },
+  { key: 'primary', label: '小学' },
+  { key: 'middle', label: '初中' },
+  { key: 'high', label: '高中' },
+  { key: 'university', label: '大学' },
+  { key: 'ielts', label: '雅思' },
+  { key: 'toefl', label: '托福' },
+]
+
+const universityTracks = [
+  '四级', '六级', '专四', '专八', '考研', '考博'
+]
+
+const courseConfigs = [
+  { title: '章节词数模板', desc: '固定数量 + 尾章补齐' },
+  { title: '特殊章节', desc: '可单独指定词表' },
+  { title: '自动词库', desc: '数据库快速拉取' },
+]
+
+const courseFlow = [
+  { step: '课前筛选', desc: '未知词选择与状态标记' },
+  { step: '正式学习', desc: '发音/批注/计时/随机点名' },
+  { step: '游戏巩固', desc: '连连看/拼写/打地鼠' },
+  { step: '学习反馈', desc: '掌握度回写与复习计划' },
+]
+
+const courseTools = [
+  '英音/美音', '批注模式', '进度回写', '缓存策略',
+]
 
 const nextLesson = computed(() => {
   if (!todayLessons.value?.length) return null

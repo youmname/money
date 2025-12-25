@@ -67,8 +67,8 @@ const router = createRouter({
         {
           path: 'schedule',
           name: 'teacherSchedule',
-          component: () => import('@/views/teacher/course/TeacherScheduleView.vue'),
-          meta: { teacherNavKey: 'course', showTeacherNav: true },
+          component: () => import('@/views/teacher/course/pages/TeacherScheduleView.vue'),
+          meta: { showTeacherNav: false },
         },
         {
           path: 'question-bank',
@@ -109,6 +109,30 @@ const router = createRouter({
           path: 'course/content',
           name: 'teacherCourseContent',
           component: () => import('@/views/teacher/course/pages/CourseContentPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        {
+          path: 'course/word',
+          name: 'teacherWordCourse',
+          component: () => import('@/views/teacher/course/pages/WordCoursePage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        {
+          path: 'course/word/:courseId',
+          name: 'teacherWordCourseDetail',
+          component: () => import('@/views/teacher/course/pages/CourseDetailBooksPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        {
+          path: 'course/class-list',
+          name: 'teacherClassList',
+          component: () => import('@/views/teacher/course/pages/ClassListPage.vue'),
+          meta: { showTeacherNav: false },
+        },
+        {
+          path: 'course/class/:classId',
+          name: 'teacherClassDetail',
+          component: () => import('@/views/teacher/course/pages/ClassDetailPage.vue'),
           meta: { showTeacherNav: false },
         },
 

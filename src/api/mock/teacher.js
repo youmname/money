@@ -3,6 +3,7 @@
 // ==========================
 
 import { getLessons, addLesson, updateLesson } from './store.js'
+import { dbAddClass, dbGetClasses, dbGetClassById, dbUpdateClass, dbGetNoticeTemplates, dbSaveNoticeTemplate } from './db.js'
 
 /**
  * 简单的延迟函数，用来模拟网络请求耗时
@@ -105,4 +106,61 @@ export async function mockGetWeekLessons() {
   return mockGetLessonsByDateRange(startDate, endDate)
 }
 
+/**
+ * mock：创建班级
+ * @param {Object} data 班级数据
+ * @returns {Promise<Object>} 创建的班级对象
+ */
+export async function mockCreateClass(data) {
+  await wait(300)
+  return dbAddClass(data)
+}
 
+/**
+ * mock：获取班级列表
+ * @returns {Promise<Array>} 班级列表
+ */
+export async function mockGetClasses() {
+  await wait(200)
+  const classes = dbGetClasses()
+  // 添加状态和标签
+  return classes.map(c => {
+    if (!c.status) {
+      const startDate = new Date(c.startAt)
+      const now = new Date()
+      c.status = now < startDate ? 'notStarted' : 'ongoing'
+    }
+    return c
+  })
+}
+
+/**
+ * mock：获取班级详情
+ * @param {string} classId 班级 ID
+ * @returns {Promise<Object>} 班级详情
+ */
+export async function mockGetClassDetail(classId) {
+  await wait(200)
+  return dbGetClassById(classId)
+}
+
+/**
+ * mock：更新班级
+ * @param {string} classId 班级 ID
+ * @param {Object} patch 要更新的字段
+ * @returns {Promise<Object>} 更新后的班级对象
+ */
+export async function mockUpdateClass(classId, patch) {
+  await wait(200)
+  return dbUpdateClass(classId, patch)
+}
+
+export async function mockGetNoticeTemplates() {
+  await wait(120)
+  return dbGetNoticeTemplates()
+}
+
+export async function mockSaveNoticeTemplate(template) {
+  await wait(150)
+  return dbSaveNoticeTemplate(template)
+}

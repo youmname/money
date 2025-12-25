@@ -247,9 +247,10 @@ function goProfile() {
   router.push('/student/profile')
 }
 
-function goClassroom() {
-  if (!todayLesson.lessonId) return
-  router.push(`/student/classroom/${todayLesson.lessonId}`)
+function goClassroom(lessonId) {
+  const id = lessonId || todayLesson.lessonId
+  if (!id) return
+  router.push(`/student/classroom/${id}`)
 }
 
 function handleAction(actionType) {

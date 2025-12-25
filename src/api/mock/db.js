@@ -5,6 +5,8 @@
 
 const DB_KEY_LESSONS = 'mock_db_lessons'
 const DB_KEY_STUDENTS = 'mock_students_v1'
+const DB_KEY_CLASSES = 'mock_classes_v1'
+const DB_KEY_NOTICE_TEMPLATES = 'mock_notice_templates_v1'
 
 // ==========================
 // Lessons（课程）相关操作
@@ -121,6 +123,145 @@ export function clearLessons() {
 }
 
 // ==========================
+// Classes（班级）相关操作
+// ==========================
+
+/**
+ * 获取所有班级
+ * @returns {Array} 班级列表
+ */
+export function dbGetClasses() {
+  try {
+    const data = localStorage.getItem(DB_KEY_CLASSES)
+    if (!data) return []
+    return JSON.parse(data)
+  } catch (err) {
+    console.error('[mockDB] 读取班级失败', err)
+    return []
+  }
+}
+
+export function dbGetClassById(classId) {
+  try {
+    const classes = dbGetClasses()
+    const classItem = classes.find(c => c.id === classId || c.classId === classId)
+    if (!classItem) return null
+    
+    // 添加学生列表（从学生数据中筛选）
+    const students = getStudents()
+    classItem.students = students.filter(s => s.classId === classId || s.classId === classItem.id)
+    
+    // 添加状态标签
+    if (!classItem.status) {
+      const startDate = new Date(classItem.startAt)
+      const now = new Date()
+      if (now < startDate) {
+        classItem.status = 'notStarted'
+      } else {
+        classItem.status = 'ongoing'
+      }
+    }
+    
+    // 添加节奏标签
+    if (classItem.schedule) {
+      const scheduleMap = {
+        'weekly-2': '每周 2 次',
+        'weekly-3': '每周 3 次',
+        'weekly-5': '每周 5 次',
+        'weekend': '周末班',
+        'daily': '每天',
+        'custom': '自定义节奏'
+      }
+      classItem.scheduleLabel = scheduleMap[classItem.schedule] || classItem.schedule
+    }
+    
+    return classItem
+  } catch (err) {
+    console.error('[mockDB] 读取班级详情失败', err)
+    return null
+  }
+}
+
+export function dbUpdateClass(classId, patch) {
+  try {
+    const classes = dbGetClasses()
+    const index = classes.findIndex(c => c.id === classId || c.classId === classId)
+    if (index < 0) return null
+    classes[index] = { ...classes[index], ...patch }
+    localStorage.setItem(DB_KEY_CLASSES, JSON.stringify(classes))
+    return classes[index]
+  } catch (err) {
+    console.error('[mockDB] 更新班级失败', err)
+    throw err
+  }
+}
+
+/**
+ * 添加班级（新增）
+ * @param {Object} payload 班级数据
+ * @returns {Object} 保存后的班级对象
+ */
+export function dbAddClass(payload) {
+  try {
+    const classes = dbGetClasses()
+    const classId = payload.id || payload.classId || `class-${Date.now()}`
+    const classItem = {
+      ...payload,
+      id: classId,
+      classId,
+      status: payload.status || 'notStarted',
+      studentCount: payload.studentIds?.length || 0,
+      createdAt: payload.createdAt || new Date().toISOString(),
+    }
+    classes.push(classItem)
+    localStorage.setItem(DB_KEY_CLASSES, JSON.stringify(classes))
+    return classItem
+  } catch (err) {
+    console.error('[mockDB] 添加班级失败', err)
+    throw err
+  }
+}
+
+// ==========================
+// Notice Templates（通知模板）
+// ==========================
+
+export function dbGetNoticeTemplates() {
+  try {
+    const data = localStorage.getItem(DB_KEY_NOTICE_TEMPLATES)
+    if (!data) return []
+    return JSON.parse(data)
+  } catch (err) {
+    console.error('[mockDB] 读取通知模板失败', err)
+    return []
+  }
+}
+
+export function dbSaveNoticeTemplate(template) {
+  try {
+    const templates = dbGetNoticeTemplates()
+    const now = new Date().toISOString()
+    const id = template.id || `tpl-${Date.now()}`
+    const next = {
+      ...template,
+      id,
+      updatedAt: now,
+    }
+    const index = templates.findIndex((t) => t.id === id)
+    if (index >= 0) {
+      templates[index] = next
+    } else {
+      templates.push(next)
+    }
+    localStorage.setItem(DB_KEY_NOTICE_TEMPLATES, JSON.stringify(templates))
+    return next
+  } catch (err) {
+    console.error('[mockDB] 保存通知模板失败', err)
+    throw err
+  }
+}
+
+// ==========================
 // Students（学生）相关操作（预留）
 // ==========================
 
@@ -162,4 +303,3 @@ export function saveStudent(student) {
     throw err
   }
 }
-
