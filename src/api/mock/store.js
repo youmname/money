@@ -1,5 +1,5 @@
 // 共享 mock store：统一读写 lesson 数据（基于 localStorage）
-import { dbAddLesson, dbGetLessons, dbUpdateLesson } from './db.js'
+import { dbAddLesson, dbGetLessons, dbUpdateLesson, dbDeleteLesson } from './db.js'
 
 export function getLessons() {
   return Promise.resolve(dbGetLessons())
@@ -15,6 +15,10 @@ export function addLesson(payload) {
 
 export function updateLesson(lessonId, patch) {
   return Promise.resolve(dbUpdateLesson(lessonId, patch))
+}
+
+export function deleteLesson(lessonId) {
+  return Promise.resolve(dbDeleteLesson(lessonId))
 }
 
 

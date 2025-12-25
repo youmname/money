@@ -164,3 +164,39 @@ export async function mockSaveNoticeTemplate(template) {
   await wait(150)
   return dbSaveNoticeTemplate(template)
 }
+
+/**
+ * mock：删除课程
+ * @param {string} lessonId 课程 ID
+ * @returns {Promise<boolean>} 是否删除成功
+ */
+export async function mockDeleteLesson(lessonId) {
+  await wait(200)
+  const { dbDeleteLesson } = await import('./db.js')
+  return dbDeleteLesson(lessonId)
+}
+
+/**
+ * mock：更新课程时间
+ * @param {string} lessonId 课程 ID
+ * @param {string} startAt 新的开始时间
+ * @param {string} endAt 新的结束时间
+ * @returns {Promise<Object|null>} 更新后的课程对象
+ */
+export async function mockUpdateLessonTime(lessonId, startAt, endAt) {
+  await wait(200)
+  const { dbUpdateLesson } = await import('./db.js')
+  return dbUpdateLesson(lessonId, { startAt, endAt })
+}
+
+/**
+ * mock：更新课程（完整更新）
+ * @param {string} lessonId 课程 ID
+ * @param {Object} patch 要更新的字段
+ * @returns {Promise<Object|null>} 更新后的课程对象
+ */
+export async function mockUpdateLesson(lessonId, patch) {
+  await wait(200)
+  const { dbUpdateLesson } = await import('./db.js')
+  return dbUpdateLesson(lessonId, patch)
+}

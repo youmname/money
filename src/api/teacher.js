@@ -102,7 +102,37 @@ export async function getStudentDetail() { return {} }
 export async function enrollStudent() { return {} }
 export async function updateStudent() { return {} }
 export async function createStudentReport() { return true }
-export async function createLesson() { return {} }
-export async function getLessonsByDateRange() { return [] }
-export async function getTodayLessons() { return [] }
-export async function getWeekLessons() { return [] }
+export async function createLesson(payload) {
+  const { mockCreateLesson } = await import('./mock/teacher.js')
+  return mockCreateLesson(payload)
+}
+
+export async function getLessonsByDateRange(startDate, endDate) {
+  const { mockGetLessonsByDateRange } = await import('./mock/teacher.js')
+  return mockGetLessonsByDateRange(startDate, endDate)
+}
+
+export async function getTodayLessons() {
+  const { mockGetTodayLessons } = await import('./mock/teacher.js')
+  return mockGetTodayLessons()
+}
+
+export async function getWeekLessons() {
+  const { mockGetWeekLessons } = await import('./mock/teacher.js')
+  return mockGetWeekLessons()
+}
+
+export async function deleteLesson(lessonId) {
+  const { mockDeleteLesson } = await import('./mock/teacher.js')
+  return mockDeleteLesson(lessonId)
+}
+
+export async function updateLessonTime(lessonId, startAt, endAt) {
+  const { mockUpdateLessonTime } = await import('./mock/teacher.js')
+  return mockUpdateLessonTime(lessonId, startAt, endAt)
+}
+
+export async function updateLesson(lessonId, patch) {
+  const { mockUpdateLesson } = await import('./mock/teacher.js')
+  return mockUpdateLesson(lessonId, patch)
+}

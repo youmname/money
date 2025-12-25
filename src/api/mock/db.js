@@ -112,6 +112,27 @@ export function updateLesson(lessonId, patch) {
 }
 
 /**
+ * 删除课程
+ * @param {string} lessonId 课程 ID
+ * @returns {boolean} 是否删除成功
+ */
+export function dbDeleteLesson(lessonId) {
+  try {
+    const lessons = dbGetLessons()
+    const index = lessons.findIndex((l) => l.lessonId === lessonId)
+    
+    if (index < 0) return false
+    
+    lessons.splice(index, 1)
+    localStorage.setItem(DB_KEY_LESSONS, JSON.stringify(lessons))
+    return true
+  } catch (err) {
+    console.error('[mockDB] 删除课程失败', err)
+    return false
+  }
+}
+
+/**
  * 清空所有课程（可选功能）
  */
 export function clearLessons() {
